@@ -10,6 +10,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -68,15 +69,8 @@ public class _Utils {
     public static void wakeScreen(Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "bright");
-        mWakeLock.acquire(60000);
-
-        // 屏幕解锁
-        KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(KEYGUARD_SERVICE);
-        KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("unLock");
-        // 屏幕锁定
-        keyguardLock.disableKeyguard(); // 解锁
+        mWakeLock.acquire(300000);
     }
-
 
     private static void unLockScreen(Activity activity) {
         final Window win = activity.getWindow();

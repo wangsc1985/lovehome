@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         fragmentList = new ArrayList<>();
         navigation = findViewById(R.id.navigation);
 
@@ -57,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
                         mViewPager.setCurrentItem(0);
                         return true;
                     case R.id.navigation_runLog:
+                        ((IfragmentInit) fragmentList.get(1)).init();
                         mViewPager.setCurrentItem(1);
                         return true;
                 }
@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentList.add(new OprateFragment());
         fragmentList.add(new RunlogsFragment());
-
 
 
         textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
@@ -105,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
+                ((IfragmentInit) fragmentList.get(position)).init();
                 navigation.getMenu().getItem(position).setChecked(true);
             }
 

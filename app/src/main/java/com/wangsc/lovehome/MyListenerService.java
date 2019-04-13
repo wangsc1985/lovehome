@@ -27,6 +27,7 @@ import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CH
 
 public class MyListenerService extends AccessibilityService {
 
+    private static final String TAG = "wangsc";
     private TextToSpeech textToSpeech;//创建自带语音对象
     private DataContext mDataContext;
 
@@ -54,17 +55,17 @@ public class MyListenerService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
-
-        AccessibilityServiceInfo info = new AccessibilityServiceInfo();
-//        info.packageNames = apps.toArray(new String[apps.size()]); //监听过滤的包名
-//        for(String packageName : apps){
-//            Log.e("wangsc","包名："+packageName);
-//        }
-        info.packageNames = new String[]{"com.alibaba.android.rimet"}; //监听过滤的包名
-        info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK; //监听哪些行为
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN; //反馈
-        info.notificationTimeout = 100; //通知的时间
-        setServiceInfo(info);
+//
+//        AccessibilityServiceInfo info = new AccessibilityServiceInfo();
+////        info.packageNames = apps.toArray(new String[apps.size()]); //监听过滤的包名
+////        for(String packageName : apps){
+////            Log.e("wangsc","包名："+packageName);
+////        }
+//        info.packageNames = new String[]{"com.alibaba.android.rimet"}; //监听过滤的包名
+//        info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK; //监听哪些行为
+//        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN; //反馈
+//        info.notificationTimeout = 100; //通知的时间
+//        setServiceInfo(info);
 
 
         textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
@@ -102,19 +103,37 @@ public class MyListenerService extends AccessibilityService {
             mDataContext = new DataContext(getApplicationContext());
             eventType = event.getEventType();
             if (eventType == TYPE_WINDOW_STATE_CHANGED) {
-//                Log.e("wangsc","package: "+event.getPackageName()+"  className: "+event.getClassName());
-//                clickViewListByText("工作");
+                String packageName = event.getPackageName().toString();
+                String className = event.getClassName().toString();
+                Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+
+                if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SplashActivity")) {
+                    // 主界面
+                    clickViewListByText("工作");
+                    Thread.sleep(5000);
+                    Log.e("wangsc","eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
+
+                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.lightapp.runtime.activity.CommonWebViewActivity")) {
+                    // 打卡界面
+
+                }
+
+
             }
 
             if (eventType == TYPE_WINDOW_CONTENT_CHANGED) {
-                printNodeInfo();
-
+printNodeInfo();
                 if (clickViewByEqualsDescription("暂不升级"))
                     return;
                 if (clickViewByEqualsDescription("确定"))
                     return;
                 if (clickViewByEqualsDescription("考勤打卡"))
                     return;
+//                if (click("考勤打卡"))
+//                    return;
+
+//                kaoqin();
                 Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 switch (hour) {
@@ -208,18 +227,84 @@ public class MyListenerService extends AccessibilityService {
      * @return
      */
     private boolean clickViewByEqualText(String viewText) {
-        List<AccessibilityWindowInfo> list = getWindows();
-        for (AccessibilityWindowInfo window : list) {
-            AccessibilityNodeInfo nodeInfo = window.getRoot();
-            if (nodeInfo != null) {
-                AccessibilityNodeInfo node = getNodeByEqualsText(nodeInfo, viewText);
-                if (node != null) {
-                    return clickView(node);
-                }
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        List<AccessibilityNodeInfo> list= nodeInfo.findAccessibilityNodeInfosByText(viewText);
+
+        if (nodeInfo != null) {
+            AccessibilityNodeInfo node = getNodeByEqualsText(nodeInfo, viewText);
+            if (node != null) {
+                return clickView(node);
             }
         }
         return false;
     }
+    private boolean clickViewByEqualText1(String viewText) {
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        List<AccessibilityNodeInfo> list= nodeInfo.findAccessibilityNodeInfosByText(viewText);
+        if(!list.isEmpty()){
+            boolean ret = click(viewText);
+        }
+        return false;
+    }
+
+    private void kaoqin() throws Exception {
+        String resId="com.alibaba.android.rimet:id/oa_fragment_gridview";
+        AccessibilityNodeInfo info=getRootInActiveWindow();
+        List<AccessibilityNodeInfo> list = info.findAccessibilityNodeInfosByViewId(resId);
+        if(list!=null||list.size()!=0){
+            AccessibilityNodeInfo node = list.get(0);
+            if (node != null || node.getChildCount() >= 8) {
+                node = node.getChild(7);
+                if (node != null) {  //已找到考勤打卡所在节点,进行点击操作
+                    node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                }else{
+                    throw new Exception("已进入工作页,但未找到考勤打卡节点");
+                }
+            }else{
+                throw new Exception("已进入工作页,但未找到考勤打卡节点");
+            }
+        }else{
+            throw new Exception("已进入工作页,但未找到相关节点");
+        }
+    }
+
+    //通过文字点击
+    private boolean click(String viewText){
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        if(nodeInfo == null) {
+            Log.w(TAG, "点击失败，rootWindow为空");
+            return false;
+        }
+        List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId(viewText);
+        if(list.isEmpty()){
+            //没有该文字的控件
+            Log.w(TAG, "点击失败，"+viewText+"控件列表为空");
+            return false;
+        }else{
+            //有该控件
+            //找到可点击的父控件
+            Log.e("wangsc","size: "+list.size());
+            AccessibilityNodeInfo view = list.get(0);
+            return onclick(view);  //遍历点击
+        }
+
+    }
+    private boolean onclick(AccessibilityNodeInfo view){
+        if(view.isClickable()){
+            view.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            Log.w(TAG, "点击成功");
+            return true;
+        }else{
+
+            AccessibilityNodeInfo parent = view.getParent();
+            if(parent==null){
+                return false;
+            }
+            onclick(parent);
+        }
+        return false;
+    }
+
 
     /**
      * 点击Text = btnText的按钮，只点击一个view即返回。
@@ -321,6 +406,7 @@ public class MyListenerService extends AccessibilityService {
      * @return
      */
     private boolean clickViewByEqualsDescription(String viewDescription) {
+
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if (nodeInfo != null) {
             AccessibilityNodeInfo node = getNodeByEqualsDescription(nodeInfo, viewDescription);

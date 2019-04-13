@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +16,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.wangsc.lovehome.DataContext;
+import com.wangsc.lovehome.IfragmentInit;
 import com.wangsc.lovehome.MainActivity;
 import com.wangsc.lovehome.R;
 import com.wangsc.lovehome.RunLog;
+import com.wangsc.lovehome.Setting;
 import com.wangsc.lovehome._Utils;
 
 import java.util.List;
 
-public class RunlogsFragment extends Fragment {
+public class RunlogsFragment extends Fragment implements IfragmentInit {
     private DataContext mDataContext;
 
     public static RunlogsFragment newInstance(String param1, String param2) {
@@ -32,18 +35,30 @@ public class RunlogsFragment extends Fragment {
         return fragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.e("wangsc","onCreate()");
         super.onCreate(savedInstanceState);
 
         mDataContext = new DataContext(getContext());
     }
 
 
+    @Override
+    public void init() {
+        Log.e("wangsc","init()");
+        try {
+            runLogs = mDataContext.getRunLogs();
+            adapter.notifyDataSetChanged();
+        } catch (Exception e) {
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.e("wangsc","onCreateView()");
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_runlogs, container, false);
         //
@@ -69,16 +84,14 @@ public class RunlogsFragment extends Fragment {
         listViewRunLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-//                new AlertDialog.Builder(getContext()).setMessage("确认要删除当前日志吗？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        mDataContext.deleteRunLog(runLogs.get(position).getId());
-//                        runLogs = mDataContext.getRunLogs();
-//                        adapter.notifyDataSetChanged();
-//                    }
-//                }).setNegativeButton("取消", null).show();
-                runLogs = mDataContext.getRunLogs();
-                adapter.notifyDataSetChanged();
+                new AlertDialog.Builder(getContext()).setMessage("确认要删除当前日志吗？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mDataContext.deleteRunLog(runLogs.get(position).getId());
+                        runLogs = mDataContext.getRunLogs();
+                        adapter.notifyDataSetChanged();
+                    }
+                }).setNegativeButton("取消", null).show();
             }
         });
 
@@ -90,6 +103,8 @@ public class RunlogsFragment extends Fragment {
     private ListView listViewRunLog;
     private List<RunLog> runLogs;
     private RunlogListdAdapter adapter;
+
+
     protected class RunlogListdAdapter extends BaseAdapter {
         @Override
         public int getCount() {

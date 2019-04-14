@@ -123,7 +123,7 @@ public class MyListenerService extends AccessibilityService {
             }
 
             if (eventType == TYPE_WINDOW_CONTENT_CHANGED) {
-printNodeInfo();
+//                printNodeInfo();
                 if (clickViewByEqualsDescription("暂不升级"))
                     return;
                 if (clickViewByEqualsDescription("确定"))

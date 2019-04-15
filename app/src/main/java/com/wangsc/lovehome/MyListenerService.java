@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Rect;
+import android.media.audiofx.LoudnessEnhancer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -98,8 +99,7 @@ public class MyListenerService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         try {
             mDataContext = new DataContext(getApplicationContext());
-            Log.e("wangsc",!mDataContext.getSetting(Setting.KEYS.listener,false).getBoolean()+"");
-            if(!mDataContext.getSetting(Setting.KEYS.listener,false).getBoolean())
+            if (!mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean())
                 return;
 
             eventType = event.getEventType();
@@ -107,7 +107,7 @@ public class MyListenerService extends AccessibilityService {
             if (eventType == TYPE_WINDOW_STATE_CHANGED) {
                 String packageName = event.getPackageName().toString();
                 String className = event.getClassName().toString();
-                Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+//                Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
 
                 if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SplashActivity")) {
                     // 主界面
@@ -117,10 +117,10 @@ public class MyListenerService extends AccessibilityService {
                     // 打卡界面
                 } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.user.login.SignUpWithPwdActivity")) {
                     // 登录界面
-                    Calendar calendar = Calendar.getInstance();
-                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+//                    Calendar calendar = Calendar.getInstance();
+//                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
 //                    if (hour == 8 || hour == 12 || hour == 13 || hour == 18) {
-                        Login();
+                    Login1();
 //                    }
                 }
             } else if (eventType == TYPE_WINDOW_CONTENT_CHANGED) {
@@ -167,6 +167,7 @@ public class MyListenerService extends AccessibilityService {
         }
     }
 
+
     private void Login() {
         String phone = mDataContext.getSetting(Setting.KEYS.phone, "").getString();
         String password = mDataContext.getSetting(Setting.KEYS.password, "").getString();
@@ -195,30 +196,93 @@ public class MyListenerService extends AccessibilityService {
         }
         if (nodePhone != null && nodePassword != null && nodeLogin != null && !phone.isEmpty() && !password.isEmpty()) {
 
-            //android>21 = 5.0时可以用ACTION_SET_TEXT
-            // android>18 3.0.1可以通过复制的手段,先确定焦点，再粘贴ACTION_PASTE
-            // 使用剪切板
-            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("text", phone);
-            clipboard.setPrimaryClip(clip);
+            try {
+                //android>21 = 5.0时可以用ACTION_SET_TEXT
+                // android>18 3.0.1可以通过复制的手段,先确定焦点，再粘贴ACTION_PASTE
+                // 使用剪切板
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("text", phone);
+                clipboard.setPrimaryClip(clip);
 
-            nodePhone.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+                Thread.sleep(500);
+                nodePhone.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                Thread.sleep(500);
+                nodePhone.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+                Thread.sleep(500);
 //                        nodePhone.performAction(AccessibilityNodeInfo.ACTION_CLEAR_SELECTION);
-            //焦点    （n是AccessibilityNodeInfo对象）
-            nodePhone.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-            //粘贴进入内容
-            nodePhone.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+                //焦点    （n是AccessibilityNodeInfo对象）
+                //粘贴进入内容
+                nodePhone.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+                Thread.sleep(500);
+                Log.e("wangsc", nodePhone.getText().toString());
 
 
-            clip = ClipData.newPlainText("text", password);
-            clipboard.setPrimaryClip(clip);
+                clip = ClipData.newPlainText("text", password);
+                clipboard.setPrimaryClip(clip);
 
-            nodePassword.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+                nodePassword.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                Thread.sleep(500);
+                nodePassword.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+                Thread.sleep(500);
 //                        nodePassword.performAction(AccessibilityNodeInfo.ACTION_CLEAR_SELECTION);
-            //焦点    （n是AccessibilityNodeInfo对象）
-            nodePassword.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-            //粘贴进入内容
-            nodePassword.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+                //焦点    （n是AccessibilityNodeInfo对象）
+                //粘贴进入内容
+                nodePassword.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+                Log.e("wangsc", nodePassword.getText().toString());
+                Thread.sleep(500);
+            } catch (Exception e) {
+
+            }
+
+
+            // 点击登录
+            clickView(nodeLogin);
+        }
+    }
+    private void Login1() {
+        String password = mDataContext.getSetting(Setting.KEYS.password, "").getString();
+
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        getAllNodesToList(nodeInfo);
+
+
+        int nodeIndex = 0;
+        AccessibilityNodeInfo nodePassword = null, nodeLogin = null;
+        for (AccessibilityNodeInfo node : allNodesInActiveWindow) {
+            if (node.getClassName().toString().equals("android.widget.EditText")) {
+                switch (nodeIndex) {
+                    case 0:
+                        nodeIndex++;
+                        break;
+                    case 1:
+                        nodePassword = node;
+                        break;
+                }
+
+            } else if (node.getClassName().toString().equals("android.widget.Button")) {
+                nodeLogin = node;
+            }
+        }
+        if ( nodePassword != null && nodeLogin != null && !password.isEmpty()) {
+
+            try {
+                //android>21 = 5.0时可以用ACTION_SET_TEXT
+                // android>18 3.0.1可以通过复制的手段,先确定焦点，再粘贴ACTION_PASTE
+                // 使用剪切板
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData  clip = ClipData.newPlainText("text", password);
+                clipboard.setPrimaryClip(clip);
+
+                nodePassword.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                nodePassword.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+//                        nodePassword.performAction(AccessibilityNodeInfo.ACTION_CLEAR_SELECTION);
+                //焦点    （n是AccessibilityNodeInfo对象）
+                //粘贴进入内容
+                nodePassword.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+                Log.e("wangsc", nodePassword.getText().toString());
+            } catch (Exception e) {
+
+            }
 
 
             // 点击登录
@@ -230,7 +294,7 @@ public class MyListenerService extends AccessibilityService {
         if (_Utils.rimetClockOnHour != hour) {
             if (clickViewListByDescription("下班打卡")) {
                 _Utils.rimetClockOnHour = hour;
-                mDataContext.addRunLog("下班打卡成功", new DateTime().toLongDateTimeString());
+                mDataContext.addRunLog("下班打卡", new DateTime().toLongDateTimeString());
             }
         }
         if (_Utils.rimetIKnowHour != hour) {
@@ -243,7 +307,7 @@ public class MyListenerService extends AccessibilityService {
         if (_Utils.rimetClockOnHour != hour) {
             if (clickViewListByDescription("上班打卡")) {
                 _Utils.rimetClockOnHour = hour;
-                mDataContext.addRunLog("上班打卡成功", new DateTime().toLongDateTimeString());
+                mDataContext.addRunLog("上班打卡", new DateTime().toLongDateTimeString());
             }
         }
         if (_Utils.rimetIKnowHour != hour) {

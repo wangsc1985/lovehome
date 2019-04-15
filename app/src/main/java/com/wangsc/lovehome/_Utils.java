@@ -76,15 +76,10 @@ public class _Utils {
         mWakeLock.acquire(300000);
     }
 
-    private static void unLockScreen(Activity activity) {
-        final Window win = activity.getWindow();
-        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-
-        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+    public static void closeScreen(Context context) {
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
     }
+
 
     public static void printException(Context context, Exception e) {
         if (e.getStackTrace().length == 0)

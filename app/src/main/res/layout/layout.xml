@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="账号"
-        android:inputType="phone" />
+        android:inputType="phone"
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/editText_password"

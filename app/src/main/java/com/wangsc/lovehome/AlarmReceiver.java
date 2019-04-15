@@ -16,7 +16,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, Intent argIntent) {
 
         try {
-            _Utils.addRunLog(context,"闹钟被唤醒",new DateTime().toShortTimeString());
             _Utils.openAppFromOuter(context,"com.alibaba.android.rimet");
             mDataContext = new DataContext(context);
             mDataContext.addRunLog("考勤打卡",new DateTime().toLongDateTimeString());

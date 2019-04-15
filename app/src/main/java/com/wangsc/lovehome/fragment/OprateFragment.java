@@ -99,7 +99,12 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                         "\n3、手机设置为无锁屏" +
                         "\n注意：" +
                         "\n1、如需自动登录功能，需设置账号信息。" +
-                        "\n2、最好保持手机充电状态，否则安卓的省电管理会导致手机唤醒时间不精准。";
+                        "\n2、最好保持手机充电状态，否则安卓的省电管理会导致手机唤醒时间不精准。" +
+                        "\n打卡时间：" +
+                        "\n8:00 - 8:10" +
+                        "\n12:00 - 12:10" +
+                        "\n13:10 - 13:20" +
+                        "\n18:00 - 18:10";
                 new android.support.v7.app.AlertDialog.Builder(getContext()).setMessage(msg).setPositiveButton("确定", null).show();
             }
         });
@@ -206,17 +211,17 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         View view = View.inflate(getContext(), R.layout.layout, null);
         android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(getContext()).create();
         dialog.setView(view);
-        dialog.setTitle("账号信息");
+        dialog.setTitle("输入登录密码");
 
-        final EditText editTextPhone = view.findViewById(R.id.editText_phone);
+//        final EditText editTextPhone = view.findViewById(R.id.editText_phone);
         final EditText editTextPassword = view.findViewById(R.id.editText_password);
-        editTextPhone.setText(mDataContext.getSetting(Setting.KEYS.phone, "").getString());
+//        editTextPhone.setText(mDataContext.getSetting(Setting.KEYS.phone, "").getString());
         editTextPassword.setText(mDataContext.getSetting(Setting.KEYS.password, "").getString());
 
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, "确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mDataContext.editSetting(Setting.KEYS.phone, editTextPhone.getText().toString());
+//                mDataContext.editSetting(Setting.KEYS.phone, editTextPhone.getText().toString());
                 mDataContext.editSetting(Setting.KEYS.password, editTextPassword.getText().toString());
             }
         });
@@ -248,6 +253,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
              */
             DateTime calendar = new DateTime();
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minite = calendar.get(Calendar.MINUTE);
 
             int random = (int) (Math.random() * 10);
 
@@ -259,8 +265,11 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                 calendar.set(Calendar.MINUTE, random);
             } else if (hour < 13) {
                 calendar.set(Calendar.HOUR_OF_DAY, 13);
-                calendar.set(Calendar.MINUTE, random);
-            } else if (hour < 18) {
+                calendar.set(Calendar.MINUTE, 10 + random);
+            }else if(hour==13&&minite<10) {
+                calendar.set(Calendar.HOUR_OF_DAY, 13);
+                calendar.set(Calendar.MINUTE, 10 + random);
+            }else if (hour < 18) {
                 calendar.set(Calendar.HOUR_OF_DAY, 18);
                 calendar.set(Calendar.MINUTE, random);
             }
@@ -272,11 +281,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             } else if (hour < 23) {
                 calendar.set(Calendar.HOUR_OF_DAY, 23);
                 calendar.set(Calendar.MINUTE, random);
-            }
-
-
-
-            else {
+            } else {
                 DataContext dataContext = new DataContext(context);
                 if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
                     if (calendar.get(Calendar.DAY_OF_WEEK) - 1 >= 5) {

@@ -1,20 +1,17 @@
 package com.wangsc.lovehome;
 
 import android.accessibilityservice.AccessibilityService;
-import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Rect;
-import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.text.method.DateTimeKeyListener;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -101,7 +98,12 @@ public class MyListenerService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         try {
             mDataContext = new DataContext(getApplicationContext());
+            Log.e("wangsc",!mDataContext.getSetting(Setting.KEYS.listener,false).getBoolean()+"");
+            if(!mDataContext.getSetting(Setting.KEYS.listener,false).getBoolean())
+                return;
+
             eventType = event.getEventType();
+
             if (eventType == TYPE_WINDOW_STATE_CHANGED) {
                 String packageName = event.getPackageName().toString();
                 String className = event.getClassName().toString();
@@ -111,58 +113,142 @@ public class MyListenerService extends AccessibilityService {
                     // 主界面
                     clickViewListByText("工作");
                     Thread.sleep(5000);
-                    Log.e("wangsc","eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-
-
                 } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.lightapp.runtime.activity.CommonWebViewActivity")) {
                     // 打卡界面
-
+                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.user.login.SignUpWithPwdActivity")) {
+                    // 登录界面
+                    Calendar calendar = Calendar.getInstance();
+                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+//                    if (hour == 8 || hour == 12 || hour == 13 || hour == 18) {
+                        Login();
+//                    }
                 }
-
-
-            }
-
-            if (eventType == TYPE_WINDOW_CONTENT_CHANGED) {
+            } else if (eventType == TYPE_WINDOW_CONTENT_CHANGED) {
 //                printNodeInfo();
+//               if(clickViewListByDescription("我知道了"))
+//                   return;
                 if (clickViewByEqualsDescription("暂不升级"))
                     return;
                 if (clickViewByEqualsDescription("确定"))
                     return;
                 if (clickViewByEqualsDescription("考勤打卡"))
                     return;
-//                if (click("考勤打卡"))
-//                    return;
 
-//                kaoqin();
                 Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 switch (hour) {
                     case 8:
-                        if (clickViewListByDescription("上班打卡", "我知道了")) {
-                            mDataContext.addRunLog("上班打卡成功", new DateTime().toLongDateTimeString());
-                            return;
-                        }
+                        rimetClockOn(hour);
+                        break;
                     case 12:
-                        if (clickViewListByDescription("下班打卡", "我知道了")) {
-                            mDataContext.addRunLog("下班打卡成功", new DateTime().toLongDateTimeString());
-                            return;
-                        }
-
+                        rimetClockOff(hour);
+                        break;
                     case 13:
-                        if (clickViewListByDescription("上班打卡", "我知道了")) {
-                            mDataContext.addRunLog("上班打卡成功", new DateTime().toLongDateTimeString());
-                            return;
-                        }
+                        rimetClockOn(hour);
+                        break;
                     case 18:
-                        if (clickViewListByDescription("下班打卡", "我知道了")) {
-                            mDataContext.addRunLog("下班打卡成功", new DateTime().toLongDateTimeString());
-                            return;
-                        }
+                        rimetClockOff(hour);
+                        break;
+
+
+                    // TODO: 2019/4/15 测试代码，用完删除。
+                    case 22:
+                        rimetClockOn(hour);
+                        break;
+                    case 23:
+                        rimetClockOff(hour);
+                        break;
+
                 }
             }
 
         } catch (Exception e) {
             _Utils.printException(getBaseContext(), e);
+        }
+    }
+
+    private void Login() {
+        String phone = mDataContext.getSetting(Setting.KEYS.phone, "").getString();
+        String password = mDataContext.getSetting(Setting.KEYS.password, "").getString();
+
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        getAllNodesToList(nodeInfo);
+
+
+        int nodeIndex = 0;
+        AccessibilityNodeInfo nodePhone = null, nodePassword = null, nodeLogin = null;
+        for (AccessibilityNodeInfo node : allNodesInActiveWindow) {
+            if (node.getClassName().toString().equals("android.widget.EditText")) {
+                switch (nodeIndex) {
+                    case 0:
+                        nodePhone = node;
+                        nodeIndex++;
+                        break;
+                    case 1:
+                        nodePassword = node;
+                        break;
+                }
+
+            } else if (node.getClassName().toString().equals("android.widget.Button")) {
+                nodeLogin = node;
+            }
+        }
+        if (nodePhone != null && nodePassword != null && nodeLogin != null && !phone.isEmpty() && !password.isEmpty()) {
+
+            //android>21 = 5.0时可以用ACTION_SET_TEXT
+            // android>18 3.0.1可以通过复制的手段,先确定焦点，再粘贴ACTION_PASTE
+            // 使用剪切板
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("text", phone);
+            clipboard.setPrimaryClip(clip);
+
+            nodePhone.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+//                        nodePhone.performAction(AccessibilityNodeInfo.ACTION_CLEAR_SELECTION);
+            //焦点    （n是AccessibilityNodeInfo对象）
+            nodePhone.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+            //粘贴进入内容
+            nodePhone.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+
+
+            clip = ClipData.newPlainText("text", password);
+            clipboard.setPrimaryClip(clip);
+
+            nodePassword.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK);
+//                        nodePassword.performAction(AccessibilityNodeInfo.ACTION_CLEAR_SELECTION);
+            //焦点    （n是AccessibilityNodeInfo对象）
+            nodePassword.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+            //粘贴进入内容
+            nodePassword.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+
+
+            // 点击登录
+            clickView(nodeLogin);
+        }
+    }
+
+    private void rimetClockOff(int hour) {
+        if (_Utils.rimetClockOnHour != hour) {
+            if (clickViewListByDescription("下班打卡")) {
+                _Utils.rimetClockOnHour = hour;
+                mDataContext.addRunLog("下班打卡成功", new DateTime().toLongDateTimeString());
+            }
+        }
+        if (_Utils.rimetIKnowHour != hour) {
+            clickViewListByDescription("我知道了");
+            _Utils.rimetIKnowHour = hour;
+        }
+    }
+
+    private void rimetClockOn(int hour) {
+        if (_Utils.rimetClockOnHour != hour) {
+            if (clickViewListByDescription("上班打卡")) {
+                _Utils.rimetClockOnHour = hour;
+                mDataContext.addRunLog("上班打卡成功", new DateTime().toLongDateTimeString());
+            }
+        }
+        if (_Utils.rimetIKnowHour != hour) {
+            clickViewListByDescription("我知道了");
+            _Utils.rimetIKnowHour = hour;
         }
     }
 
@@ -228,7 +314,7 @@ public class MyListenerService extends AccessibilityService {
      */
     private boolean clickViewByEqualText(String viewText) {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-        List<AccessibilityNodeInfo> list= nodeInfo.findAccessibilityNodeInfosByText(viewText);
+        List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByText(viewText);
 
         if (nodeInfo != null) {
             AccessibilityNodeInfo node = getNodeByEqualsText(nodeInfo, viewText);
@@ -238,66 +324,68 @@ public class MyListenerService extends AccessibilityService {
         }
         return false;
     }
+
     private boolean clickViewByEqualText1(String viewText) {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-        List<AccessibilityNodeInfo> list= nodeInfo.findAccessibilityNodeInfosByText(viewText);
-        if(!list.isEmpty()){
+        List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByText(viewText);
+        if (!list.isEmpty()) {
             boolean ret = click(viewText);
         }
         return false;
     }
 
     private void kaoqin() throws Exception {
-        String resId="com.alibaba.android.rimet:id/oa_fragment_gridview";
-        AccessibilityNodeInfo info=getRootInActiveWindow();
+        String resId = "com.alibaba.android.rimet:id/oa_fragment_gridview";
+        AccessibilityNodeInfo info = getRootInActiveWindow();
         List<AccessibilityNodeInfo> list = info.findAccessibilityNodeInfosByViewId(resId);
-        if(list!=null||list.size()!=0){
+        if (list != null || list.size() != 0) {
             AccessibilityNodeInfo node = list.get(0);
             if (node != null || node.getChildCount() >= 8) {
                 node = node.getChild(7);
                 if (node != null) {  //已找到考勤打卡所在节点,进行点击操作
                     node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                }else{
+                } else {
                     throw new Exception("已进入工作页,但未找到考勤打卡节点");
                 }
-            }else{
+            } else {
                 throw new Exception("已进入工作页,但未找到考勤打卡节点");
             }
-        }else{
+        } else {
             throw new Exception("已进入工作页,但未找到相关节点");
         }
     }
 
     //通过文字点击
-    private boolean click(String viewText){
+    private boolean click(String viewText) {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-        if(nodeInfo == null) {
+        if (nodeInfo == null) {
             Log.w(TAG, "点击失败，rootWindow为空");
             return false;
         }
         List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId(viewText);
-        if(list.isEmpty()){
+        if (list.isEmpty()) {
             //没有该文字的控件
-            Log.w(TAG, "点击失败，"+viewText+"控件列表为空");
+            Log.w(TAG, "点击失败，" + viewText + "控件列表为空");
             return false;
-        }else{
+        } else {
             //有该控件
             //找到可点击的父控件
-            Log.e("wangsc","size: "+list.size());
+            Log.e("wangsc", "size: " + list.size());
             AccessibilityNodeInfo view = list.get(0);
             return onclick(view);  //遍历点击
         }
 
     }
-    private boolean onclick(AccessibilityNodeInfo view){
-        if(view.isClickable()){
+
+    private boolean onclick(AccessibilityNodeInfo view) {
+        if (view.isClickable()) {
             view.performAction(AccessibilityNodeInfo.ACTION_CLICK);
             Log.w(TAG, "点击成功");
             return true;
-        }else{
+        } else {
 
             AccessibilityNodeInfo parent = view.getParent();
-            if(parent==null){
+            if (parent == null) {
                 return false;
             }
             onclick(parent);

@@ -24,6 +24,10 @@ import static android.content.ContentValues.TAG;
 import static android.content.Context.KEYGUARD_SERVICE;
 
 public class _Utils {
+
+    public static int rimetClockOnHour =0;
+    public static int rimetIKnowHour=0;
+
     /**
      * 从app内部启动外部程序
      *

@@ -7,15 +7,37 @@
     android:layout_height="match_parent"
     tools:context=".fragment.OprateFragment">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text=""
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/btn_helper"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:src="@mipmap/helper_close"
+        android:src="@mipmap/helper_open"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/btn_isWeek"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:src="@mipmap/five"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -29,41 +51,31 @@
 
         <Button
             android:id="@+id/btn_trim"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="150dp"
             android:layout_height="100dp"
-            android:text="启动" />
+            android:text="启动"
+            android:textSize="20dp"
+            android:textStyle="bold" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textView"
+            <Button
+                android:id="@+id/button_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:layout_weight="1"
-                android:text="周末打卡" />
+                android:text="账号信息" />
 
-            <ToggleButton
-                android:id="@+id/toggleButton"
+            <Button
+                android:id="@+id/button_intro"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="ToggleButton"
-                android:textOff="否"
-                android:textOn="是"
-                android:visibility="gone" />
-
-            <Switch
-                android:id="@+id/switch_week_rimet"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textOff="否"
-                android:textOn="是" />
-
+                android:text="说明" />
         </LinearLayout>
 
     </LinearLayout>

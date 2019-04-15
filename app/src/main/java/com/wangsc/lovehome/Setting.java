@@ -61,7 +61,7 @@ public class Setting {
         map_httpTimeOut, map_interval, map_isSensorEnable, map_isOnceLocationLatest, map_isOnceLocation, map_isGpsFirst, map_isNeedAddress, map_isLocationCacheEnable, map_animateLong,
         map_is_default_toilet, map_location_isAutoChangeGear, map_location_gear, map_location_is_opened, map_search_radius_toilet, map_search_radius_gas, map_location_clock_alarm_is_open,
         map_mylocation_type, web_index, is_auto_record, is_mark_day_show_all, is_trade_alarm_open, is_allow_action_recents, mark_day_in_homepage, tally_record_item_text, bar_title,
-        bank_bill_warning_days, is_widget_listview_item_allow_click, bank_card, is_keep_screen_wake, listener, is_rimet_week;
+        bank_bill_warning_days, is_widget_listview_item_allow_click, bank_card, is_keep_screen_wake, listener, is_rimet_week, phone, password;
 
     }
 

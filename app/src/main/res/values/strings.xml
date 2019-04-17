@@ -2,7 +2,21 @@
     <string name="app_name">钉钉打卡</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="introduce">
+        使用说明：
+        \n1、开启钉钉极速打卡、手机网络，gps定位。
+        \n2、设置app自启动。
+        \n3、手机设置为无锁屏
+
+        \n\n注意：
+        \n1、如需自动登录功能，需设置登录密码，并开启手机辅助功能。
+        \n2、最好保持手机充电状态。
+
+        \n\n打卡时间：
+        \n8:00 - 8:10
+        \n12:05 - 12:15
+        \n13:10 - 13:20
+        \n18:05 - 18:15</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

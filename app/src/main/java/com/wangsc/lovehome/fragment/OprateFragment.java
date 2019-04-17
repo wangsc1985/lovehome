@@ -93,19 +93,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         btnIntro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String msg = "使用说明：" +
-                        "\n1、打开辅助功能。" +
-                        "\n2、设置自启动。" +
-                        "\n3、手机设置为无锁屏" +
-                        "\n注意：" +
-                        "\n1、如需自动登录功能，需设置账号信息。" +
-                        "\n2、最好保持手机充电状态，否则安卓的省电管理会导致手机唤醒时间不精准。" +
-                        "\n打卡时间：" +
-                        "\n8:00 - 8:10" +
-                        "\n12:00 - 12:10" +
-                        "\n13:10 - 13:20" +
-                        "\n18:00 - 18:10";
-                new android.support.v7.app.AlertDialog.Builder(getContext()).setMessage(msg).setPositiveButton("确定", null).show();
+                new android.support.v7.app.AlertDialog.Builder(getContext()).setMessage(R.string.introduce).setPositiveButton("确定", null).show();
             }
         });
 
@@ -262,7 +250,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                 calendar.set(Calendar.MINUTE, random);
             } else if (hour < 12) {
                 calendar.set(Calendar.HOUR_OF_DAY, 12);
-                calendar.set(Calendar.MINUTE, random);
+                calendar.set(Calendar.MINUTE, 5+random);
             } else if (hour < 13) {
                 calendar.set(Calendar.HOUR_OF_DAY, 13);
                 calendar.set(Calendar.MINUTE, 10 + random);
@@ -271,17 +259,18 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                 calendar.set(Calendar.MINUTE, 10 + random);
             }else if (hour < 18) {
                 calendar.set(Calendar.HOUR_OF_DAY, 18);
-                calendar.set(Calendar.MINUTE, random);
+                calendar.set(Calendar.MINUTE, 5+random);
             }
             // TODO: 2019/4/15 测试代码，用完删除。
 
-            else if (hour < 22) {
-                calendar.set(Calendar.HOUR_OF_DAY, 22);
-                calendar.set(Calendar.MINUTE, random);
-            } else if (hour < 23) {
-                calendar.set(Calendar.HOUR_OF_DAY, 23);
-                calendar.set(Calendar.MINUTE, random);
-            } else {
+//            else if (hour < 22) {
+//                calendar.set(Calendar.HOUR_OF_DAY, 22);
+//                calendar.set(Calendar.MINUTE, random);
+//            } else if (hour < 23) {
+//                calendar.set(Calendar.HOUR_OF_DAY, 23);
+//                calendar.set(Calendar.MINUTE, random);
+//            }
+            else {
                 DataContext dataContext = new DataContext(context);
                 if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
                     if (calendar.get(Calendar.DAY_OF_WEEK) - 1 >= 5) {
@@ -311,6 +300,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             // 念佛结束闹钟
             PendingIntent pi = PendingIntent.getBroadcast(context, ALARM_RIMET, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTimeInMillis, pi);

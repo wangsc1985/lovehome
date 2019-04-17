@@ -1,27 +1,19 @@
 package com.wangsc.lovehome;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.wangsc.lovehome.fragment.OprateFragment;
@@ -45,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         fragmentList = new ArrayList<>();
         navigation = findViewById(R.id.navigation);
 
@@ -53,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.navigation_home:
+//                        _Utils.speaker(MainActivity.this,"thank you");
+//                        _Utils.speaker(MainActivity.this,"老实念佛");
+//            textToSpeech.speak("thank you",TextToSpeech.QUEUE_FLUSH, null);
                         mViewPager.setCurrentItem(0);
                         return true;
                     case R.id.navigation_runLog:
@@ -72,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if (status == textToSpeech.SUCCESS) {
+                if (status == TextToSpeech.SUCCESS) {
 
                     textToSpeech.setPitch(1.0f);//方法用来控制音调
                     textToSpeech.setSpeechRate(1.0f);//用来控制语速
@@ -124,6 +120,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     private void initTimePrompt() {
         IntentFilter timeFilter = new IntentFilter();
@@ -137,8 +137,8 @@ public class MainActivity extends AppCompatActivity {
             Calendar cal = Calendar.getInstance();
             int min = cal.get(Calendar.MINUTE);
             int second = cal.get(Calendar.SECOND);
-            textToSpeech.speak(min + "分" + second + "秒",//输入中文，若不支持的设备则不会读出来
-                    TextToSpeech.QUEUE_FLUSH, null);
+            _Utils.speaker(context,min + "分" + second + "秒");
+//            textToSpeech.speak(min + "分" + second + "秒",TextToSpeech.QUEUE_FLUSH, null);
         }
     };
 

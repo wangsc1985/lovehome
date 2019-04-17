@@ -12,13 +12,16 @@ import android.content.pm.ResolveInfo;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import java.util.List;
+import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
 import static android.content.Context.KEYGUARD_SERVICE;
@@ -28,6 +31,30 @@ public class _Utils {
     public static int rimetClockOnHour =0;
     public static int rimetIKnowHour=0;
 
+    private static TextToSpeech textToSpeech=null;//创建自带语音对象
+    public static void speaker(final Context context, final String msg){
+        textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    textToSpeech.setPitch(1.0f);//方法用来控制音调
+                    textToSpeech.setSpeechRate(0.7f);//用来控制语速
+
+                    //判断是否支持下面两种语言
+//                    int result1 = textToSpeech.setLanguage(Locale.US);
+                    int result = textToSpeech.setLanguage(Locale.CHINA);
+//                    if(result1 == TextToSpeech.LANG_MISSING_DATA || result1 == TextToSpeech.LANG_NOT_SUPPORTED){
+//                        Toast.makeText(context, "US数据丢失或不支持", Toast.LENGTH_SHORT).show();
+//                    }
+                    if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
+                        Toast.makeText(context, "SIMPLIFIED_CHINESE数据丢失或不支持", Toast.LENGTH_SHORT).show();
+                    }else{
+                        textToSpeech.speak(msg,TextToSpeech.QUEUE_FLUSH, null);//输入中文，若不支持的设备则不会读出来
+                    }
+                }
+            }
+        });
+    }
     /**
      * 从app内部启动外部程序
      *
@@ -73,7 +100,7 @@ public class _Utils {
     public static void wakeScreen(Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "bright");
-        mWakeLock.acquire(300000);
+        mWakeLock.acquire(120000);
     }
 
     public static void closeScreen(Context context) {

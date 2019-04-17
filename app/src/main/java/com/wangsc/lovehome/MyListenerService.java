@@ -26,7 +26,6 @@ import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CH
 public class MyListenerService extends AccessibilityService {
 
     private static final String TAG = "wangsc";
-    private TextToSpeech textToSpeech;//创建自带语音对象
     private DataContext mDataContext;
 
 
@@ -44,8 +43,6 @@ public class MyListenerService extends AccessibilityService {
             Calendar cal = Calendar.getInstance();
             int min = cal.get(Calendar.MINUTE);
             int second = cal.get(Calendar.SECOND);
-            textToSpeech.speak(min + "分" + second + "秒",//输入中文，若不支持的设备则不会读出来
-                    TextToSpeech.QUEUE_FLUSH, null);
         }
     };
 
@@ -65,33 +62,6 @@ public class MyListenerService extends AccessibilityService {
 //        info.notificationTimeout = 100; //通知的时间
 //        setServiceInfo(info);
 
-
-        textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == textToSpeech.SUCCESS) {
-                    // Toast.makeText(MainActivity.this,"成功输出语音",
-                    // Toast.LENGTH_SHORT).show();
-                    // Locale loc1=new Locale("us");
-                    // Locale loc2=new Locale("china");
-
-                    textToSpeech.setPitch(1.0f);//方法用来控制音调
-                    textToSpeech.setSpeechRate(1.0f);//用来控制语速
-
-                    //判断是否支持下面两种语言
-                    int result1 = textToSpeech.setLanguage(Locale.US);
-                    int result2 = textToSpeech.setLanguage(Locale.
-                            SIMPLIFIED_CHINESE);
-                    boolean a = (result1 == TextToSpeech.LANG_MISSING_DATA || result1 == TextToSpeech.LANG_NOT_SUPPORTED);
-                    boolean b = (result2 == TextToSpeech.LANG_MISSING_DATA || result2 == TextToSpeech.LANG_NOT_SUPPORTED);
-
-
-                } else {
-                    Toast.makeText(getApplicationContext(), "数据丢失或不支持", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
 //        initTimePrompt();
     }
 
@@ -109,13 +79,14 @@ public class MyListenerService extends AccessibilityService {
                 String className = event.getClassName().toString();
 //                Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
 
-                if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SplashActivity")) {
-                    // 主界面
-                    clickViewListByText("工作");
-                    Thread.sleep(5000);
-                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.lightapp.runtime.activity.CommonWebViewActivity")) {
-                    // 打卡界面
-                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.user.login.SignUpWithPwdActivity")) {
+//                if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SplashActivity")) {
+//                    // 主界面
+//                    clickViewListByText("工作");
+//                    Thread.sleep(5000);
+//                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.lightapp.runtime.activity.CommonWebViewActivity")) {
+//                    // 打卡界面
+//                } else
+                    if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.user.login.SignUpWithPwdActivity")) {
                     // 登录界面
 //                    Calendar calendar = Calendar.getInstance();
 //                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -123,44 +94,46 @@ public class MyListenerService extends AccessibilityService {
                     Login1();
 //                    }
                 }
-            } else if (eventType == TYPE_WINDOW_CONTENT_CHANGED) {
-//                printNodeInfo();
-//               if(clickViewListByDescription("我知道了"))
-//                   return;
-                if (clickViewByEqualsDescription("暂不升级"))
-                    return;
-                if (clickViewByEqualsDescription("确定"))
-                    return;
-                if (clickViewByEqualsDescription("考勤打卡"))
-                    return;
-
-                Calendar calendar = Calendar.getInstance();
-                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                switch (hour) {
-                    case 8:
-                        rimetClockOn(hour);
-                        break;
-                    case 12:
-                        rimetClockOff(hour);
-                        break;
-                    case 13:
-                        rimetClockOn(hour);
-                        break;
-                    case 18:
-                        rimetClockOff(hour);
-                        break;
-
-
-                    // TODO: 2019/4/15 测试代码，用完删除。
-                    case 22:
-                        rimetClockOn(hour);
-                        break;
-                    case 23:
-                        rimetClockOff(hour);
-                        break;
-
-                }
             }
+
+///*            else if (eventType == TYPE_WINDOW_CONTENT_CHANGED) {
+////                printNodeInfo();
+////               if(clickViewListByDescription("我知道了"))
+////                   return;
+//                if (clickViewByEqualsDescription("暂不升级"))
+//                    return;
+//                if (clickViewByEqualsDescription("确定"))
+//                    return;
+//                if (clickViewByEqualsDescription("考勤打卡"))
+//                    return;
+//
+//                Calendar calendar = Calendar.getInstance();
+//                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+//                switch (hour) {
+//                    case 8:
+//                        rimetClockOn(hour);
+//                        break;
+//                    case 12:
+//                        rimetClockOff(hour);
+//                        break;
+//                    case 13:
+//                        rimetClockOn(hour);
+//                        break;
+//                    case 18:
+//                        rimetClockOff(hour);
+//                        break;
+//
+//
+//                    // TODO: 2019/4/15 测试代码，用完删除。
+//                    case 22:
+//                        rimetClockOn(hour);
+//                        break;
+//                    case 23:
+//                        rimetClockOff(hour);
+//                        break;
+//
+//                }
+//            }*/
 
         } catch (Exception e) {
             _Utils.printException(getBaseContext(), e);

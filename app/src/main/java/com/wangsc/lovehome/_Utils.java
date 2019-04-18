@@ -180,4 +180,44 @@ public class _Utils {
         }
         return false;
     }
+    private static PowerManager.WakeLock wakeLock = null;
+
+    /**
+     * 获取电源锁，保持该服务在屏幕熄灭时仍然获取CPU时，保持运行
+     * <p>
+     * PARTIAL_WAKE_LOCK :保持CPU 运转，屏幕和键盘灯是关闭的。
+     * SCREEN_DIM_WAKE_LOCK ：保持CPU 运转，允许保持屏幕显示但有可能是灰的，关闭键盘灯
+     * SCREEN_BRIGHT_WAKE_LOCK ：保持CPU 运转，保持屏幕高亮显示，关闭键盘灯
+     * FULL_WAKE_LOCK ：保持CPU 运转，保持屏幕高亮显示，键盘灯也保持亮度
+     *
+     * @param context
+     */
+    public static void acquireWakeLock(Context context) {
+        try {
+            if (null == wakeLock) {
+                PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, context.getClass().getCanonicalName());
+                if (null != wakeLock) {
+                    wakeLock.acquire();
+                    addRunLog(context, "", "锁定唤醒锁。");
+                }
+            }
+        } catch (Exception e) {
+            printException(context, e);
+        }
+    }
+    /**
+     * 释放设备电源锁
+     */
+    public static void releaseWakeLock(Context context) {
+        try {
+            if (null != wakeLock && wakeLock.isHeld()) {
+                wakeLock.release();
+                wakeLock = null;
+                addRunLog(context, "", "解除唤醒锁。");
+            }
+        } catch (Exception e) {
+            printException(context, e);
+        }
+    }
 }

@@ -295,6 +295,8 @@ public class OprateFragment extends Fragment implements IfragmentInit {
     public static void startAlarm(Context context, long alarmTimeInMillis) {
         try {
 
+            _Utils.acquireWakeLock(context);
+
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("tag", ALARM_RIMET);
             // 念佛结束闹钟
@@ -319,6 +321,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
     public static void stopAlarm(Context context) {
         try {
+            _Utils.releaseWakeLock(context);
             Intent intent = new Intent(context, AlarmReceiver.class);
             PendingIntent pi = PendingIntent.getBroadcast(context, ALARM_RIMET, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);

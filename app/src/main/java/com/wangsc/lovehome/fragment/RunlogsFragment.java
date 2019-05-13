@@ -1,8 +1,6 @@
 package com.wangsc.lovehome.fragment;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -17,10 +15,8 @@ import android.widget.TextView;
 
 import com.wangsc.lovehome.DataContext;
 import com.wangsc.lovehome.IfragmentInit;
-import com.wangsc.lovehome.MainActivity;
 import com.wangsc.lovehome.R;
-import com.wangsc.lovehome.RunLog;
-import com.wangsc.lovehome.Setting;
+import com.wangsc.lovehome.model.RunLog;
 import com.wangsc.lovehome._Utils;
 
 import java.util.List;

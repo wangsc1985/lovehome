@@ -1,18 +1,16 @@
 package com.wangsc.lovehome.fragment;
 
 
+import android.animation.ObjectAnimator;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,15 +24,17 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.ToggleButton;
 
-import com.wangsc.lovehome.AlarmReceiver;
+import com.wangsc.lovehome.recevier.AlarmReceiver;
 import com.wangsc.lovehome.DataContext;
-import com.wangsc.lovehome.DateTime;
+import com.wangsc.lovehome.model.DateTime;
 import com.wangsc.lovehome.IfragmentInit;
+import com.wangsc.lovehome.service.MusicService;
 import com.wangsc.lovehome.R;
-import com.wangsc.lovehome.Setting;
+import com.wangsc.lovehome.model.Setting;
 import com.wangsc.lovehome._Utils;
 
 import java.util.Calendar;
+import java.util.Random;
 
 import static android.content.Context.ALARM_SERVICE;
 
@@ -73,13 +73,6 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 //            btnHelper.setImageResource(R.mipmap.helper_close);
             shanDong(btnHelper);
         }
-        if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean()) {
-            btnTrim.setText("运行中");
-//            btnTrim.setTextColor(Color.BLACK);
-        } else {
-            btnTrim.setText("开始");
-//            btnTrim.setTextColor(Color.RED);
-        }
     }
 
     @Override
@@ -89,7 +82,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         View view = inflater.inflate(R.layout.fragment_oprate, container, false);
 
 
-        Button btnIntro = view.findViewById(R.id.button_intro);
+        final Button btnIntro = view.findViewById(R.id.button_intro);
         btnIntro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,35 +157,53 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         });
 
         btnTrim = view.findViewById(R.id.btn_trim);
+        if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean()) {
+            btnTrim.setText("正在运行");
+            animatorSuofang(btnTrim);
+        } else {
+            btnTrim.setText("开始");
+        }
         btnTrim.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean() == false) {
                     setAlarmRimet(getContext());
-                    mDataContext.editSetting(Setting.KEYS.listener, true);
-
-                    btnTrim.setText("运行中");
-//                    btnTrim.setTextColor(Color.BLACK);
+                    btnTrim.setText("正在运行");
+                    animatorSuofang(btnTrim);
                 } else {
                     stopAlarm(getContext());
-                    mDataContext.editSetting(Setting.KEYS.listener, false);
                     btnTrim.setText("开始");
-//                    btnTrim.setTextColor(Color.RED);
+                    stopAnimatorSuofang();
                 }
             }
         });
-        btnTrim.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-
-
-                startAlarm(getContext(), System.currentTimeMillis() + 5000);
-                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
-                return true;
-            }
-        });
+//        btnTrim.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                startAlarm(getContext(), System.currentTimeMillis() + 5000);
+//                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
+//                return true;
+//            }
+//        });
 
         return view;
+    }
+
+    //缩放
+    public ObjectAnimator scaleY;
+
+    public void animatorSuofang(View myView) {
+        if (scaleY == null)
+            scaleY = ObjectAnimator.ofFloat(myView, "scaleY", 1f, 0.9f, 1f);
+        scaleY.setRepeatCount(-1);
+        scaleY.setDuration(600);
+        scaleY.start();
+    }
+
+    public void stopAnimatorSuofang() {
+        scaleY.setRepeatCount(0);
+//        if (scaleY != null)
+//            scaleY.cancel();
     }
 
     public void eidtAccountDialog() {
@@ -243,59 +254,163 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
             int minite = calendar.get(Calendar.MINUTE);
 
-            int random = (int) (Math.random() * 10);
+//            int minRandom = (int) (Math.minRandom() * 10);
+            Random ran = new Random();
+            int minRandom = ran.nextInt(5);
+            int secRandom = ran.nextInt(59);
 
-            if (hour < 8) {
-                calendar.set(Calendar.HOUR_OF_DAY, 8);
-                calendar.set(Calendar.MINUTE, random);
-            } else if (hour < 12) {
-                calendar.set(Calendar.HOUR_OF_DAY, 12);
-                calendar.set(Calendar.MINUTE, 5+random);
-            } else if (hour < 13) {
-                calendar.set(Calendar.HOUR_OF_DAY, 13);
-                calendar.set(Calendar.MINUTE, 10 + random);
-            }else if(hour==13&&minite<10) {
-                calendar.set(Calendar.HOUR_OF_DAY, 13);
-                calendar.set(Calendar.MINUTE, 10 + random);
-            }else if (hour < 18) {
-                calendar.set(Calendar.HOUR_OF_DAY, 18);
-                calendar.set(Calendar.MINUTE, 5+random);
-            }
-            // TODO: 2019/4/15 测试代码，用完删除。
 
-//            else if (hour < 22) {
-//                calendar.set(Calendar.HOUR_OF_DAY, 22);
-//                calendar.set(Calendar.MINUTE, random);
-//            } else if (hour < 23) {
-//                calendar.set(Calendar.HOUR_OF_DAY, 23);
-//                calendar.set(Calendar.MINUTE, random);
-//            }
-            else {
-                DataContext dataContext = new DataContext(context);
-                if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
-                    if (calendar.get(Calendar.DAY_OF_WEEK) - 1 >= 5) {
-                        calendar.add(Calendar.DAY_OF_MONTH, 9 - calendar.get(Calendar.DAY_OF_WEEK));
-                    } else {
-                        calendar.add(Calendar.DAY_OF_MONTH, 1);
-                    }
+
+            DataContext dataContext = new DataContext(context);
+            int week_day = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+
+            if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
+                /**
+                 * 如果上班时间 - 5天制。
+                 *
+                 * 周末直接跳转到周一的早上八点。
+                 *
+                 * 其他日期
+                 * 1、如果是当天最后一个闹钟，跳转到下一天的八点。
+                 * 2、其他时间设置为当天的下一个时间点。
+                 */
+                if (week_day == 6 || week_day == 0) {
+                    addDay(dataContext,calendar, week_day);
+                    calendar.set(Calendar.HOUR_OF_DAY, 8);
+                    calendar.set(Calendar.MINUTE, minRandom);
+                    calendar.set(Calendar.SECOND, secRandom);
                 } else {
-                    calendar.add(Calendar.DAY_OF_MONTH, 1);
+                    if (hour < 8) {
+                        calendar.set(Calendar.HOUR_OF_DAY, 8);
+                        calendar.set(Calendar.MINUTE, minRandom);
+                        calendar.set(Calendar.SECOND, secRandom);
+                    } else if (hour < 12) {
+                        calendar.set(Calendar.HOUR_OF_DAY, 12);
+                        calendar.set(Calendar.MINUTE, 5 + minRandom);
+                        calendar.set(Calendar.SECOND, secRandom);
+                    } else if (hour < 13) {
+                        calendar.set(Calendar.HOUR_OF_DAY, 13);
+                        calendar.set(Calendar.MINUTE, 10 + minRandom);
+                        calendar.set(Calendar.SECOND, secRandom);
+                    } else if (hour == 13 && minite < 10) {
+                        calendar.set(Calendar.HOUR_OF_DAY, 13);
+                        calendar.set(Calendar.MINUTE, 10 + minRandom);
+                        calendar.set(Calendar.SECOND, secRandom);
+                    } else if (hour < 18) {
+                        calendar.set(Calendar.HOUR_OF_DAY, 18);
+                        calendar.set(Calendar.MINUTE, 5 + minRandom);
+                        calendar.set(Calendar.SECOND, secRandom);
+                    }
+                    // TODO: 2019/4/15 测试代码，用完删除。
+//                    else if (hour < 22) {
+//                        calendar.set(Calendar.HOUR_OF_DAY, 22);
+//                        calendar.set(Calendar.MINUTE, minRandom);
+//                    calendar.set(Calendar.SECOND, secRandom);
+//                    } else if (hour < 23) {
+//                        calendar.set(Calendar.HOUR_OF_DAY, 23);
+//                        calendar.set(Calendar.MINUTE, minRandom);
+//                    calendar.set(Calendar.SECOND, secRandom);
+//                    }
+                    //
+
+                    else {
+                        if(week_day==5){
+                            calendar.add(Calendar.DAY_OF_MONTH, 3);
+                        }else{
+                            calendar.add(Calendar.DAY_OF_MONTH, 1);
+                        }
+                        calendar.set(Calendar.HOUR_OF_DAY, 8);
+                        calendar.set(Calendar.MINUTE, minRandom);
+                        calendar.set(Calendar.SECOND, secRandom);
+                    }
                 }
-                calendar.set(Calendar.HOUR_OF_DAY, 8);
-                calendar.set(Calendar.MINUTE, random);
+            } else {
+                /**
+                 * 如果上班时间 - 7天制
+                 *
+                 * 1、当天最后一个闹钟，跳转到下一天的八点。
+                 * 2、其他时间设置为当天的下一个时间点。
+                 */
+                if (hour < 8) {
+                    calendar.set(Calendar.HOUR_OF_DAY, 8);
+                    calendar.set(Calendar.MINUTE, minRandom);
+                    calendar.set(Calendar.SECOND, secRandom);
+                } else if (hour < 12) {
+                    calendar.set(Calendar.HOUR_OF_DAY, 12);
+                    calendar.set(Calendar.MINUTE, 5 + minRandom);
+                    calendar.set(Calendar.SECOND, secRandom);
+                } else if (hour < 13) {
+                    calendar.set(Calendar.HOUR_OF_DAY, 13);
+                    calendar.set(Calendar.MINUTE, 10 + minRandom);
+                    calendar.set(Calendar.SECOND, secRandom);
+                } else if (hour == 13 && minite < 10) {
+                    calendar.set(Calendar.HOUR_OF_DAY, 13);
+                    calendar.set(Calendar.MINUTE, 10 + minRandom);
+                    calendar.set(Calendar.SECOND, secRandom);
+                } else if (hour < 18) {
+                    calendar.set(Calendar.HOUR_OF_DAY, 18);
+                    calendar.set(Calendar.MINUTE, 5 + minRandom);
+                    calendar.set(Calendar.SECOND, secRandom);
+                }
+                 //TODO: 2019/4/15 测试代码，用完删除。
+//                else if (hour < 22) {
+//                    calendar.set(Calendar.HOUR_OF_DAY, 22);
+//                    calendar.set(Calendar.MINUTE, minRandom);
+//                calendar.set(Calendar.SECOND, secRandom);
+//                } else if (hour < 23) {
+//                    calendar.set(Calendar.HOUR_OF_DAY, 23);
+//                    calendar.set(Calendar.MINUTE, minRandom);
+//                calendar.set(Calendar.SECOND, secRandom);
+//                }
+                //
+
+                else {
+                    calendar.add(Calendar.DAY_OF_MONTH, 1);
+                    calendar.set(Calendar.HOUR_OF_DAY, 8);
+                    calendar.set(Calendar.MINUTE, minRandom);
+                    calendar.set(Calendar.SECOND, secRandom);
+                }
             }
+
+
+            /**
+             * 一    二   三   四   五   六   日
+             * 1     2    3    4    5   6   0
+             * 2     3    4    5    6   7   1
+             *
+             * 周五+3 周六+2 其余+1
+             */
             Log.e("wangsc", calendar.toLongDateTimeString());
             startAlarm(context, calendar.getTimeInMillis());
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             _Utils.printException(context, e);
         }
 
     }
 
+    private static void addDay(DataContext dataContext, DateTime calendar, int week_day) {
+        if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
+            switch (week_day) {
+                case 5:
+                    calendar.add(Calendar.DAY_OF_MONTH, 3);
+                    break;
+                case 6:
+                    calendar.add(Calendar.DAY_OF_MONTH, 2);
+                    break;
+                default:
+                    calendar.add(Calendar.DAY_OF_MONTH, 1);
+            }
+        }else{
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+    }
+
     public static void startAlarm(Context context, long alarmTimeInMillis) {
         try {
 
-            _Utils.acquireWakeLock(context);
+            context.startService(new Intent(context, MusicService.class));
+//            _Utils.acquireWakeLock(context);
 
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("tag", ALARM_RIMET);
@@ -313,7 +428,9 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             }
 
             DataContext dataContext = new DataContext(context);
-            dataContext.addRunLog("下次打卡时间", new DateTime(alarmTimeInMillis).toLongDateTimeString());
+            dataContext.addSetting(Setting.KEYS.alarmTimeInMillis,alarmTimeInMillis);
+            dataContext.editSetting(Setting.KEYS.listener, true);
+            dataContext.addRunLog("下次启动时间", new DateTime(alarmTimeInMillis).toLongDateTimeString());
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -321,11 +438,17 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
     public static void stopAlarm(Context context) {
         try {
-            _Utils.releaseWakeLock(context);
+            context.stopService(new Intent(context, MusicService.class));// 停止服务
+//            _Utils.releaseWakeLock(context);
             Intent intent = new Intent(context, AlarmReceiver.class);
             PendingIntent pi = PendingIntent.getBroadcast(context, ALARM_RIMET, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
             am.cancel(pi);
+
+
+            DataContext dataContext = new DataContext(context);
+            dataContext.deleteSetting(Setting.KEYS.alarmTimeInMillis);
+            dataContext.editSetting(Setting.KEYS.listener, false);
         } catch (Exception e) {
             _Utils.printException(context, e);
         }

@@ -1,9 +1,11 @@
 package com.wangsc.lovehome;
 
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
@@ -13,6 +15,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -125,6 +129,20 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        try {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BACK:
+                    Log.e("wangsc","click back");
+                    _Utils.clickHomeButton(this);
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            _Utils.printException(MainActivity.this, e);
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     private void initTimePrompt() {
         IntentFilter timeFilter = new IntentFilter();
         timeFilter.addAction(Intent.ACTION_TIME_TICK);

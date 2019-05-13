@@ -1,8 +1,6 @@
 package com.wangsc.lovehome;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,27 +8,24 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Toast;
+
+import com.wangsc.lovehome.model.RunLog;
+import com.wangsc.lovehome.service.MyListenerService;
 
 import java.util.List;
 import java.util.Locale;
-
-import static android.content.ContentValues.TAG;
-import static android.content.Context.KEYGUARD_SERVICE;
 
 public class _Utils {
 
     public static int rimetClockOnHour =0;
     public static int rimetIKnowHour=0;
-
+    private static final String TAG = "wangsc";
     private static TextToSpeech textToSpeech=null;//创建自带语音对象
     public static void speaker(final Context context, final String msg){
         textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
@@ -84,15 +79,39 @@ public class _Utils {
     }
 
     /**
+     * 模拟点击HOME按钮
+     * @param context
+     */
+    public static void clickHomeButton(Context context){
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+    /**
      * 从app外部启动外部程序
      *
      * @param context
      * @param packageName
      */
-    public static void openAppFromOuter(Context context, String packageName) throws InterruptedException {
+    public static void openAppFromOuter(final Context context, String packageName){
         wakeScreen(context);
         Intent LaunchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         context.startActivity(LaunchIntent);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(60000);
+                    Intent intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_HOME);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public static PowerManager.WakeLock mWakeLock;
@@ -199,7 +218,7 @@ public class _Utils {
                 wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, context.getClass().getCanonicalName());
                 if (null != wakeLock) {
                     wakeLock.acquire();
-                    addRunLog(context, "", "锁定唤醒锁。");
+//                    addRunLog(context, "", "锁定唤醒锁。");
                 }
             }
         } catch (Exception e) {
@@ -214,7 +233,7 @@ public class _Utils {
             if (null != wakeLock && wakeLock.isHeld()) {
                 wakeLock.release();
                 wakeLock = null;
-                addRunLog(context, "", "解除唤醒锁。");
+//                addRunLog(context, "", "解除唤醒锁。");
             }
         } catch (Exception e) {
             printException(context, e);

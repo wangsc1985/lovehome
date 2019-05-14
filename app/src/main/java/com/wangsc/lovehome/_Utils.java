@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.wangsc.lovehome.model.DateTime;
 import com.wangsc.lovehome.model.RunLog;
 import com.wangsc.lovehome.service.MyListenerService;
 
@@ -57,7 +58,10 @@ public class _Utils {
      * @param packageName
      * @throws PackageManager.NameNotFoundException
      */
-    public static void openAppFromInner(Context context, String packageName) throws PackageManager.NameNotFoundException {
+    public static void openAppFromInner(final Context context, String packageName) throws PackageManager.NameNotFoundException {
+        wakeScreen(context);
+
+
         PackageInfo pi = context.getPackageManager().getPackageInfo(packageName, 0);
 
         Intent resolveIntent = new Intent(Intent.ACTION_MAIN, null);
@@ -76,6 +80,22 @@ public class _Utils {
             intent.setComponent(cn);
             context.startActivity(intent);
         }
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(40000);
+                    Intent intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_HOME);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     /**
@@ -88,6 +108,7 @@ public class _Utils {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
+
     /**
      * 从app外部启动外部程序
      *
@@ -96,13 +117,24 @@ public class _Utils {
      */
     public static void openAppFromOuter(final Context context, String packageName){
         wakeScreen(context);
+
+        Intent LaunchIntent1 = context.getPackageManager().getLaunchIntentForPackage("com.wangsc.lovehome");
+        context.startActivity(LaunchIntent1);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Intent LaunchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         context.startActivity(LaunchIntent);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(40000);
                     Intent intent = new Intent(Intent.ACTION_MAIN);
                     intent.addCategory(Intent.CATEGORY_HOME);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -113,6 +145,7 @@ public class _Utils {
             }
         }).start();
     }
+
 
     public static PowerManager.WakeLock mWakeLock;
     @SuppressLint("InvalidWakeLockTag")

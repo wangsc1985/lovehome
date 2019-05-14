@@ -2,11 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.wangsc.lovehome">
 
+    <!--读取存储卡的权限-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!--监控锁屏开启时需要的权限-->
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <!--监控手机开机时需要的权限-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application

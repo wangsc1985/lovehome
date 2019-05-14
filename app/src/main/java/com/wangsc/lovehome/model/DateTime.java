@@ -33,6 +33,12 @@ public class DateTime extends GregorianCalendar {
         this.set(year, month, day, hour, minute, second);
         this.set(Calendar.MILLISECOND, 0);
     }
+    public DateTime(int hour, int minute) {
+        this.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        this.set(Calendar.HOUR_OF_DAY, hour);
+        this.set(Calendar.MINUTE, minute);
+        this.set(Calendar.MILLISECOND, 0);
+    }
 
     public static DateTime getToday() {
         DateTime today = new DateTime();

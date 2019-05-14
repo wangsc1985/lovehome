@@ -21,6 +21,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         try {
             _Utils.openAppFromOuter(context,"com.alibaba.android.rimet");
+//            _Utils.openAppFromInner(context,"com.alibaba.android.rimet");
+//            _Utils.openRimetFromOuter(context);
             mDataContext = new DataContext(context);
             mDataContext.addRunLog("考勤打卡",new DateTime().toLongDateTimeString());
             OprateFragment.setAlarmRimet(context);

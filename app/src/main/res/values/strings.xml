@@ -1,18 +1,19 @@
 <resources>
-    <string name="app_name">钉钉打卡</string>
+    <string name="app_name">阿迦啰</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="introduce">
         手机设置：
         \n1、app自启动。
-        \n2、亮屏无锁屏
+        \n2、亮屏无锁屏。
+        \n3、电池优化设置。
 
         \n\n注意：
         \n1、如需自动登录功能，需设置登录密码，并开启手机辅助功能。
         \n2、最好保持手机充电状态。
 
         \n\n打卡时间：
-        \n8:00 - 8:5
+        \n8:00 - 8:05
         \n12:05 - 12:10
         \n13:10 - 13:15
         \n18:05 - 18:10</string>

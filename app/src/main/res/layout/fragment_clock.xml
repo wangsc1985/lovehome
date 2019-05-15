@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".fragment.ClockFragment">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="考勤时间会在分钟上加5以内随机数。"
+        android:textAlignment="center"
+        android:textColor="#C50825" />
+
+    <View
+        android:id="@+id/sdf"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#DAD5D5"></View>
+
+    <ListView
+        android:id="@+id/listView_clock"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp">
+
+    </ListView>
+</LinearLayout>

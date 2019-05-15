@@ -20,6 +20,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.wangsc.lovehome.fragment.ClockFragment;
 import com.wangsc.lovehome.fragment.OprateFragment;
 import com.wangsc.lovehome.fragment.RunlogsFragment;
 
@@ -52,14 +53,15 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.navigation_home:
-//                        _Utils.speaker(MainActivity.this,"thank you");
-//                        _Utils.speaker(MainActivity.this,"老实念佛");
-//            textToSpeech.speak("thank you",TextToSpeech.QUEUE_FLUSH, null);
                         mViewPager.setCurrentItem(0);
                         return true;
-                    case R.id.navigation_runLog:
+                    case R.id.navigation_clock:
                         ((IfragmentInit) fragmentList.get(1)).init();
                         mViewPager.setCurrentItem(1);
+                        return true;
+                    case R.id.navigation_runLog:
+                        ((IfragmentInit) fragmentList.get(2)).init();
+                        mViewPager.setCurrentItem(2);
                         return true;
                 }
                 return false;
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         fragmentList.add(new OprateFragment());
+        fragmentList.add(new ClockFragment());
         fragmentList.add(new RunlogsFragment());
 
 
@@ -95,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
         mViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         mViewPager = findViewById(R.id.viewPage_content);
-        mViewPager.setOffscreenPageLimit(1);
+        mViewPager.setOffscreenPageLimit(3);
         mViewPager.setAdapter(mViewPagerAdapter);
         mViewPager.addTouchables(null);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

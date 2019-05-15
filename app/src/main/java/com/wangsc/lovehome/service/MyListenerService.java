@@ -77,8 +77,8 @@ public class MyListenerService extends AccessibilityService {
             if (eventType == TYPE_WINDOW_STATE_CHANGED) {
                 String packageName = event.getPackageName().toString();
                 String className = event.getClassName().toString();
-//                Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
-
+                Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+//                printNodeInfo();
 //                if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SplashActivity")) {
 //                    // 主界面
 //                    clickViewListByText("工作");
@@ -86,7 +86,9 @@ public class MyListenerService extends AccessibilityService {
 //                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.lightapp.runtime.activity.CommonWebViewActivity")) {
 //                    // 打卡界面
 //                } else
-                if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.user.login.SignUpWithPwdActivity")) {
+                if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SlideActivity")) {
+                    clickViewByEqualsText("登录");
+                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.user.login.SignUpWithPwdActivity")) {
                     // 登录界面
 //                    Calendar calendar = Calendar.getInstance();
 //                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -344,24 +346,6 @@ public class MyListenerService extends AccessibilityService {
     }
 
 
-    /**
-     * 点击Text = btnText的按钮，只点击一个view即返回。
-     *
-     * @param viewText
-     * @return
-     */
-    private boolean clickViewByEqualText(String viewText) {
-        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-        List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByText(viewText);
-
-        if (nodeInfo != null) {
-            AccessibilityNodeInfo node = getNodeByEqualsText(nodeInfo, viewText);
-            if (node != null) {
-                return clickView(node);
-            }
-        }
-        return false;
-    }
 
     private boolean clickViewByEqualText1(String viewText) {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
@@ -460,6 +444,12 @@ public class MyListenerService extends AccessibilityService {
         return null;
     }
 
+    /**
+     * 点击Text = btnText的按钮，只点击一个view即返回。
+     *
+     * @param viewText
+     * @return
+     */
     private boolean clickViewByEqualsText(String viewText) {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if (nodeInfo != null) {

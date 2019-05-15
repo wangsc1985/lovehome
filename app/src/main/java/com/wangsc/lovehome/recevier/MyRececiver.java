@@ -10,9 +10,6 @@ import com.wangsc.lovehome.fragment.OprateFragment;
 import com.wangsc.lovehome.model.Setting;
 
 public class MyRececiver extends BroadcastReceiver {
-    public MyRececiver() {
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
         try {

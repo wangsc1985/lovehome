@@ -2,6 +2,7 @@ package com.wangsc.lovehome.fragment;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -22,15 +24,8 @@ import com.wangsc.lovehome._Utils;
 import java.util.List;
 
 public class RunlogsFragment extends Fragment implements IfragmentInit {
+
     private DataContext mDataContext;
-
-    public static RunlogsFragment newInstance(String param1, String param2) {
-        RunlogsFragment fragment = new RunlogsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,7 +38,7 @@ public class RunlogsFragment extends Fragment implements IfragmentInit {
 
     @Override
     public void init() {
-        Log.e("wangsc","init()");
+        Log.e("wangsc","RunlogsFragment.init()");
         try {
             runLogs = mDataContext.getRunLogs();
             adapter.notifyDataSetChanged();
@@ -95,6 +90,7 @@ public class RunlogsFragment extends Fragment implements IfragmentInit {
 
         return view;
     }
+
 
     private ListView listViewRunLog;
     private List<RunLog> runLogs;

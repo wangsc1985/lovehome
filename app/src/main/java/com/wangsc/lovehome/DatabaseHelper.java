@@ -11,7 +11,7 @@ import android.util.Log;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     private static final String DATABASE_NAME = "mp.db";
 
     public DatabaseHelper(Context context) {
@@ -52,6 +52,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "Address TEXT,"
                     + "PoiName TEXT,"
                     + "Time LONG)");
+            db.execSQL("create table if not exists rimetClock("
+                    + "id TEXT PRIMARY KEY,"
+                    + "hour INT,"
+                    + "minite INT,"
+                    + "summery TEXT)");
         } catch (SQLException e) {
             Log.e("wangsc", e.getMessage());
         }
@@ -74,6 +79,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             + "status int,"
                             + "read int,"
                             + "createTime LONG)");
+                case 1:
+                    db.execSQL("create table if not exists rimetClock("
+                            + "id TEXT PRIMARY KEY,"
+                            + "hour INT,"
+                            + "minite INT,"
+                            + "summery TEXT)");
+                    break;
             }
         } catch (SQLException e) {
             Log.e("wangsc", e.getMessage());

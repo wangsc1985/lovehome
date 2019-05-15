@@ -6,10 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.wangsc.lovehome.model.DateTime;
+import com.wangsc.lovehome.model.RimetClock;
 import com.wangsc.lovehome.model.RunLog;
 import com.wangsc.lovehome.model.Setting;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +28,102 @@ public class DataContext {
         this.context = context;
         dbHelper = new DatabaseHelper(context);
     }
+
+    //region RimetClock
+    public List<RimetClock> getRimetClocks() {
+        List<RimetClock> result = new ArrayList<>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("rimetClock", null, null, null, null, null, " hour, minite");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                RimetClock model = new RimetClock(UUID.fromString(cursor.getString(0)));
+                model.setHour(cursor.getInt(1));
+                model.setMinite(cursor.getInt(2));
+                model.setSummery(cursor.getString(3));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+
+    public void addRimetClock(RimetClock rimetClock) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            //使用insert方法向表中插入数据
+            ContentValues values = new ContentValues();
+            values.put("id", rimetClock.getId().toString());
+            values.put("hour", rimetClock.getHour());
+            values.put("minite", rimetClock.getMinite());
+            values.put("summery", rimetClock.getSummery());
+            //调用方法插入数据
+            db.insert("rimetClock", "id", values);
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public void addRimetClocks(List<RimetClock> rimetClocks) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            for (RimetClock rimetClock:rimetClocks) {
+                //使用insert方法向表中插入数据
+                ContentValues values = new ContentValues();
+                values.put("id", rimetClock.getId().toString());
+                values.put("hour", rimetClock.getHour());
+                values.put("minite", rimetClock.getMinite());
+                values.put("summery", rimetClock.getSummery());
+                //调用方法插入数据
+                db.insert("rimetClock", "id", values);
+            }
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    public void updateRimetClock(RimetClock runLog) {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            //使用update方法更新表中的数据
+            ContentValues values = new ContentValues();
+            values.put("hour", runLog.getHour());
+            values.put("minite", runLog.getMinite());
+            values.put("summery", runLog.getSummery());
+
+            db.update("rimetClock", values, "id=?", new String[]{runLog.getId().toString()});
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public void deleteRimetClock(UUID id) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("rimetClock", "id = ?", new String[]{id.toString()});
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    //endregion
 
     //region RunLog
     public List<RunLog> getRunLogs() {

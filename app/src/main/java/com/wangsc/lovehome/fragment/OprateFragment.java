@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.ToggleButton;
 
+import com.wangsc.lovehome.model.BackupTask;
+import com.wangsc.lovehome.model.RimetClock;
 import com.wangsc.lovehome.model.MessageEvent;
 import com.wangsc.lovehome.recevier.AlarmReceiver;
 import com.wangsc.lovehome.DataContext;
@@ -39,7 +40,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import static android.content.Context.ALARM_SERVICE;
@@ -71,19 +74,22 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
     @Override
     public void onDestroy() {
+        Log.e("wangsc","OprateFragment.onDestroy()");
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
 
+
     @Override
     public void onResume() {
+        Log.e("wangsc","OprateFragment.onResume()");
         super.onResume();
 
         if (_Utils.isAccessibilitySettingsOn(getContext())) {
-//            btnHelper.setImageResource(R.mipmap.helper_open);
+            btnHelper.setImageResource(R.mipmap.helper_open);
             btnHelper.clearAnimation();
         } else {
-//            btnHelper.setImageResource(R.mipmap.helper_close);
+            btnHelper.setImageResource(R.mipmap.helper_close);
             shanDong(btnHelper);
         }
         if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean()) {
@@ -114,6 +120,13 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                 new android.support.v7.app.AlertDialog.Builder(getContext()).setMessage(R.string.introduce).setPositiveButton("确定", null).show();
             }
         });
+        btnIntro.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                new BackupTask(getContext()).execute(BackupTask.COMMAND_BACKUP);
+                return true;
+            }
+        });
 
         btnAccount = view.findViewById(R.id.button_account);
         btnAccount.setOnClickListener(new View.OnClickListener() {
@@ -137,7 +150,11 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                 final boolean listener = mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean();
                 isWeek = !isWeek;
                 final boolean finalIsWeek = isWeek;
-                new android.support.v7.app.AlertDialog.Builder(getContext()).setMessage("确认要变更打卡周期？").setPositiveButton("是", new DialogInterface.OnClickListener() {
+                String msg = "更改为七天工作制？";
+                if(!isWeek){
+                    msg = "更改为五天工作制？";
+                }
+                new android.support.v7.app.AlertDialog.Builder(getContext()).setMessage(msg).setPositiveButton("是", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (finalIsWeek) {
@@ -281,19 +298,29 @@ public class OprateFragment extends Fragment implements IfragmentInit {
              * 18-19.30 下班
              */
             DateTime now = new DateTime();
-            DateTime clock1 = new DateTime(8, 0);
-            DateTime clock2 = new DateTime(12, 5);
-            DateTime clock3 = new DateTime(13, 10);
-            DateTime clock4 = new DateTime(18, 5);
 
-//            int minRandom = (int) (Math.minRandom() * 10);
+            DataContext dataContext = new DataContext(context);
+            List<RimetClock> clockList =dataContext.getRimetClocks();
+            if (clockList.size()<=0){
+                clockList.add(new RimetClock(8,0,"上班"));
+                clockList.add(new RimetClock(12,5,"下班"));
+                clockList.add(new RimetClock(13,10,"上班"));
+                clockList.add(new RimetClock(18,5,"下班"));
+                dataContext.addRimetClocks(clockList);
+            }
+
+
+            List<DateTime> clocks = new ArrayList<>();
+            for(RimetClock cl : clockList){
+                clocks.add(new DateTime(cl.getHour(),cl.getMinite()));
+            }
+
             Random ran = new Random();
             int minRandom = ran.nextInt(5);
             int secRandom = ran.nextInt(59);
 
-
-            DataContext dataContext = new DataContext(context);
             int week_day = now.get(Calendar.DAY_OF_WEEK) - 1;
+
 
             if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
                 /**
@@ -307,36 +334,30 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                  */
 
                 if (week_day == 6 || week_day == 0) {
-                    addDay(dataContext, clock1, week_day);
-                    clock1.add(Calendar.MINUTE, minRandom);
-                    clock1.add(Calendar.SECOND, secRandom);
-                    now = clock1;
+                    addDay(dataContext, clocks.get(0), week_day);
+                    clocks.get(0).add(Calendar.MINUTE, minRandom);
+                    clocks.get(0).add(Calendar.SECOND, secRandom);
+                    now = clocks.get(0);
                 } else {
-                    if (now.getTimeInMillis() < clock1.getTimeInMillis()) {
-                        clock1.add(Calendar.MINUTE, minRandom);
-                        clock1.add(Calendar.SECOND, secRandom);
-                        now = clock1;
-                    } else if (now.getTimeInMillis() < clock2.getTimeInMillis()) {
-                        clock2.add(Calendar.MINUTE, minRandom);
-                        clock2.add(Calendar.SECOND, secRandom);
-                        now = clock2;
-                    } else if (now.getTimeInMillis() < clock3.getTimeInMillis()) {
-                        clock3.add(Calendar.MINUTE, minRandom);
-                        clock3.add(Calendar.SECOND, secRandom);
-                        now = clock3;
-                    } else if (now.getTimeInMillis() < clock4.getTimeInMillis()) {
-                        clock4.add(Calendar.MINUTE, minRandom);
-                        clock4.add(Calendar.SECOND, secRandom);
-                        now = clock4;
-                    } else {
-                        if (week_day == 5) {
-                            clock1.add(Calendar.DAY_OF_MONTH, 3);
-                        } else {
-                            clock1.add(Calendar.DAY_OF_MONTH, 1);
+                    boolean targ = false;
+                    for(DateTime clock : clocks){
+                        if(now.getTimeInMillis()<clock.getTimeInMillis()){
+                            clock.add(Calendar.MINUTE, minRandom);
+                            clock.add(Calendar.SECOND, secRandom);
+                            now = clock;
+                            targ = true;
+                            break;
                         }
-                        clock1.add(Calendar.MINUTE, minRandom);
-                        clock1.add(Calendar.SECOND, secRandom);
-                        now = clock1;
+                    }
+                    if(targ==false){
+                        if (week_day == 5) {
+                            clocks.get(0).add(Calendar.DAY_OF_MONTH, 3);
+                        } else {
+                            clocks.get(0).add(Calendar.DAY_OF_MONTH, 1);
+                        }
+                        clocks.get(0).add(Calendar.MINUTE, minRandom);
+                        clocks.get(0).add(Calendar.SECOND, secRandom);
+                        now = clocks.get(0);
                     }
                 }
             } else {
@@ -346,29 +367,113 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                  * 1、当天最后一个闹钟，跳转到下一天的八点。
                  * 2、其他时间设置为当天的下一个时间点。
                  */
-                if (now.getTimeInMillis() < clock1.getTimeInMillis()) {
-                    clock1.add(Calendar.MINUTE, minRandom);
-                    clock1.add(Calendar.SECOND, secRandom);
-                    now = clock1;
-                } else if (now.getTimeInMillis() < clock2.getTimeInMillis()) {
-                    clock2.add(Calendar.MINUTE, minRandom);
-                    clock2.add(Calendar.SECOND, secRandom);
-                    now = clock2;
-                } else if (now.getTimeInMillis() < clock3.getTimeInMillis()) {
-                    clock3.add(Calendar.MINUTE, minRandom);
-                    clock3.add(Calendar.SECOND, secRandom);
-                    now = clock3;
-                } else if (now.getTimeInMillis() < clock4.getTimeInMillis()) {
-                    clock4.add(Calendar.MINUTE, minRandom);
-                    clock4.add(Calendar.SECOND, secRandom);
-                    now = clock4;
-                } else {
-                    clock1.add(Calendar.DAY_OF_MONTH, 1);
-                    clock1.add(Calendar.MINUTE, minRandom);
-                    clock1.add(Calendar.SECOND, secRandom);
-                    now = clock1;
+                boolean targ = false;
+                for(DateTime clock : clocks){
+                    if(now.getTimeInMillis()<clock.getTimeInMillis()){
+                        clock.add(Calendar.MINUTE, minRandom);
+                        clock.add(Calendar.SECOND, secRandom);
+                        now = clock;
+                        targ = true;
+                        break;
+                    }
+                }
+                if(targ==false){
+                    clocks.get(0).add(Calendar.DAY_OF_MONTH, 1);
+                    clocks.get(0).add(Calendar.MINUTE, minRandom);
+                    clocks.get(0).add(Calendar.SECOND, secRandom);
+                    now = clocks.get(0);
                 }
             }
+
+
+            //region Description
+//            DateTime clock1 = new DateTime(8, 0);
+//            DateTime clock2 = new DateTime(12, 5);
+//            DateTime clock3 = new DateTime(13, 10);
+//            DateTime clock4 = new DateTime(18, 5);
+//
+////            int minRandom = (int) (Math.minRandom() * 10);
+//            Random ran = new Random();
+//            int minRandom = ran.nextInt(5);
+//            int secRandom = ran.nextInt(59);
+//
+//            int week_day = now.get(Calendar.DAY_OF_WEEK) - 1;
+//
+//            if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
+//                /**
+//                 * 如果上班时间 - 5天制。
+//                 *
+//                 * 周末直接跳转到周一的早上八点。
+//                 *
+//                 * 其他日期
+//                 * 1、如果是当天最后一个闹钟，跳转到下一天的八点。
+//                 * 2、其他时间设置为当天的下一个时间点。
+//                 */
+//
+//                if (week_day == 6 || week_day == 0) {
+//                    addDay(dataContext, clock1, week_day);
+//                    clock1.add(Calendar.MINUTE, minRandom);
+//                    clock1.add(Calendar.SECOND, secRandom);
+//                    now = clock1;
+//                } else {
+//                    if (now.getTimeInMillis() < clock1.getTimeInMillis()) {
+//                        clock1.add(Calendar.MINUTE, minRandom);
+//                        clock1.add(Calendar.SECOND, secRandom);
+//                        now = clock1;
+//                    } else if (now.getTimeInMillis() < clock2.getTimeInMillis()) {
+//                        clock2.add(Calendar.MINUTE, minRandom);
+//                        clock2.add(Calendar.SECOND, secRandom);
+//                        now = clock2;
+//                    } else if (now.getTimeInMillis() < clock3.getTimeInMillis()) {
+//                        clock3.add(Calendar.MINUTE, minRandom);
+//                        clock3.add(Calendar.SECOND, secRandom);
+//                        now = clock3;
+//                    } else if (now.getTimeInMillis() < clock4.getTimeInMillis()) {
+//                        clock4.add(Calendar.MINUTE, minRandom);
+//                        clock4.add(Calendar.SECOND, secRandom);
+//                        now = clock4;
+//                    } else {
+//                        if (week_day == 5) {
+//                            clock1.add(Calendar.DAY_OF_MONTH, 3);
+//                        } else {
+//                            clock1.add(Calendar.DAY_OF_MONTH, 1);
+//                        }
+//                        clock1.add(Calendar.MINUTE, minRandom);
+//                        clock1.add(Calendar.SECOND, secRandom);
+//                        now = clock1;
+//                    }
+//                }
+//            } else {
+//                /**
+//                 * 如果上班时间 - 7天制
+//                 *
+//                 * 1、当天最后一个闹钟，跳转到下一天的八点。
+//                 * 2、其他时间设置为当天的下一个时间点。
+//                 */
+//                if (now.getTimeInMillis() < clock1.getTimeInMillis()) {
+//                    clock1.add(Calendar.MINUTE, minRandom);
+//                    clock1.add(Calendar.SECOND, secRandom);
+//                    now = clock1;
+//                } else if (now.getTimeInMillis() < clock2.getTimeInMillis()) {
+//                    clock2.add(Calendar.MINUTE, minRandom);
+//                    clock2.add(Calendar.SECOND, secRandom);
+//                    now = clock2;
+//                } else if (now.getTimeInMillis() < clock3.getTimeInMillis()) {
+//                    clock3.add(Calendar.MINUTE, minRandom);
+//                    clock3.add(Calendar.SECOND, secRandom);
+//                    now = clock3;
+//                } else if (now.getTimeInMillis() < clock4.getTimeInMillis()) {
+//                    clock4.add(Calendar.MINUTE, minRandom);
+//                    clock4.add(Calendar.SECOND, secRandom);
+//                    now = clock4;
+//                } else {
+//                    clock1.add(Calendar.DAY_OF_MONTH, 1);
+//                    clock1.add(Calendar.MINUTE, minRandom);
+//                    clock1.add(Calendar.SECOND, secRandom);
+//                    now = clock1;
+//                }
+//            }
+            //endregion
 
 
             /**
@@ -378,7 +483,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
              *
              * 周五+3 周六+2 其余+1
              */
-            Log.e("wangsc", "ccccc: " + now.toLongDateTimeString());
+            Log.e("wangsc", "xxxxxxx: " + now.toLongDateTimeString());
             startAlarm(context, now.getTimeInMillis());
             dataContext.editSetting(Setting.KEYS.rimet_alarm_time, now.getTimeInMillis());
 
@@ -444,7 +549,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             DataContext dataContext = new DataContext(context);
             dataContext.addSetting(Setting.KEYS.alarmTimeInMillis, alarmTimeInMillis);
             dataContext.editSetting(Setting.KEYS.listener, true);
-            dataContext.addRunLog("下次启动时间", new DateTime(alarmTimeInMillis).toLongDateTimeString());
+//            dataContext.addRunLog("闹钟时间", new DateTime(alarmTimeInMillis).toLongDateTimeString());
         } catch (Exception e) {
             _Utils.printException(context, e);
         }

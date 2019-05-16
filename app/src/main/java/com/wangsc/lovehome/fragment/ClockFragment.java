@@ -14,9 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.wangsc.lovehome.DataContext;
@@ -35,6 +37,7 @@ import java.util.List;
 public class ClockFragment extends Fragment implements IfragmentInit {
 
     private DataContext mDataContext;
+    private Switch aSwitchIsClockRandom;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,11 +45,11 @@ public class ClockFragment extends Fragment implements IfragmentInit {
         mDataContext = new DataContext(getContext());
         adapter = new RimetClockListdAdapter();
         rimetClockList = mDataContext.getRimetClocks();
-        if (rimetClockList.size()<=0){
-            rimetClockList.add(new RimetClock(8,0,"上班"));
-            rimetClockList.add(new RimetClock(12,5,"下班"));
-            rimetClockList.add(new RimetClock(13,10,"上班"));
-            rimetClockList.add(new RimetClock(18,5,"下班"));
+        if (rimetClockList.size() <= 0) {
+            rimetClockList.add(new RimetClock(8, 0, "上班"));
+            rimetClockList.add(new RimetClock(12, 5, "下班"));
+            rimetClockList.add(new RimetClock(13, 10, "上班"));
+            rimetClockList.add(new RimetClock(18, 5, "下班"));
             mDataContext.addRimetClocks(rimetClockList);
         }
     }
@@ -68,6 +71,15 @@ public class ClockFragment extends Fragment implements IfragmentInit {
             }
         });
         listViewRimetClock.setAdapter(adapter);
+
+        aSwitchIsClockRandom = view.findViewById(R.id.switch_isClockRandom);
+        aSwitchIsClockRandom.setChecked(mDataContext.getSetting(Setting.KEYS.is_clock_random, true).getBoolean());
+        aSwitchIsClockRandom.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mDataContext.editSetting(Setting.KEYS.is_clock_random, isChecked);
+            }
+        });
 
         return view;
     }
@@ -116,7 +128,7 @@ public class ClockFragment extends Fragment implements IfragmentInit {
                 mDataContext.updateRimetClock(rimetClock);
                 rimetClockList = mDataContext.getRimetClocks();
                 adapter.notifyDataSetChanged();
-                if(mDataContext.getSetting(Setting.KEYS.listener,false).getBoolean()==true){
+                if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean() == true) {
                     OprateFragment.setAlarmRimet(getContext());
                 }
 
@@ -163,9 +175,9 @@ public class ClockFragment extends Fragment implements IfragmentInit {
                 TextView textView2 = convertView.findViewById(R.id.textView_summary);
                 textView1.setText(new DecimalFormat("00").format(rimetClock.getHour()) + ":" + new DecimalFormat("00").format(rimetClock.getMinite()));
                 textView2.setText(rimetClock.getSummery());
-                if(rimetClock.getSummery().equals("上班")){
+                if (rimetClock.getSummery().equals("上班")) {
                     textView2.setTextColor(Color.RED);
-                }else if(rimetClock.getSummery().equals("下班")){
+                } else if (rimetClock.getSummery().equals("下班")) {
                     textView2.setTextColor(Color.BLUE);
                 }
             } catch (Exception e) {

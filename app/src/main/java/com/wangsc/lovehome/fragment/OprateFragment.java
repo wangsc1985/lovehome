@@ -74,7 +74,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
     @Override
     public void onDestroy() {
-        Log.e("wangsc","OprateFragment.onDestroy()");
+        Log.e("wangsc", "OprateFragment.onDestroy()");
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
@@ -82,7 +82,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
     @Override
     public void onResume() {
-        Log.e("wangsc","OprateFragment.onResume()");
+        Log.e("wangsc", "OprateFragment.onResume()");
         super.onResume();
 
         if (_Utils.isAccessibilitySettingsOn(getContext())) {
@@ -151,7 +151,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                 isWeek = !isWeek;
                 final boolean finalIsWeek = isWeek;
                 String msg = "更改为七天工作制？";
-                if(!isWeek){
+                if (!isWeek) {
                     msg = "更改为五天工作制？";
                 }
                 new android.support.v7.app.AlertDialog.Builder(getContext()).setMessage(msg).setPositiveButton("是", new DialogInterface.OnClickListener() {
@@ -300,19 +300,21 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             DateTime now = new DateTime();
 
             DataContext dataContext = new DataContext(context);
-            List<RimetClock> clockList =dataContext.getRimetClocks();
-            if (clockList.size()<=0){
-                clockList.add(new RimetClock(8,0,"上班"));
-                clockList.add(new RimetClock(12,5,"下班"));
-                clockList.add(new RimetClock(13,10,"上班"));
-                clockList.add(new RimetClock(18,5,"下班"));
+            List<RimetClock> clockList = dataContext.getRimetClocks();
+            if (clockList.size() <= 0) {
+                clockList.add(new RimetClock(8, 0, "上班"));
+                clockList.add(new RimetClock(12, 5, "下班"));
+                clockList.add(new RimetClock(13, 10, "上班"));
+                clockList.add(new RimetClock(18, 5, "下班"));
                 dataContext.addRimetClocks(clockList);
             }
 
 
             List<DateTime> clocks = new ArrayList<>();
-            for(RimetClock cl : clockList){
-                clocks.add(new DateTime(cl.getHour(),cl.getMinite()));
+            for (RimetClock cl : clockList) {
+                DateTime dateTime = new DateTime(cl.getHour(), cl.getMinite());
+                Log.e("wangsc",dateTime.toTimeString());
+                clocks.add(dateTime);
             }
 
             Random ran = new Random();
@@ -335,28 +337,34 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
                 if (week_day == 6 || week_day == 0) {
                     addDay(dataContext, clocks.get(0), week_day);
-                    clocks.get(0).add(Calendar.MINUTE, minRandom);
-                    clocks.get(0).add(Calendar.SECOND, secRandom);
+                    if (dataContext.getSetting(Setting.KEYS.is_clock_random, true).getBoolean()) {
+                        clocks.get(0).add(Calendar.MINUTE, minRandom);
+                        clocks.get(0).add(Calendar.SECOND, secRandom);
+                    }
                     now = clocks.get(0);
                 } else {
                     boolean targ = false;
-                    for(DateTime clock : clocks){
-                        if(now.getTimeInMillis()<clock.getTimeInMillis()){
-                            clock.add(Calendar.MINUTE, minRandom);
-                            clock.add(Calendar.SECOND, secRandom);
+                    for (DateTime clock : clocks) {
+                        if (now.getTimeInMillis() < clock.getTimeInMillis()) {
+                            if (dataContext.getSetting(Setting.KEYS.is_clock_random, true).getBoolean()) {
+                                clock.add(Calendar.MINUTE, minRandom);
+                                clock.add(Calendar.SECOND, secRandom);
+                            }
                             now = clock;
                             targ = true;
                             break;
                         }
                     }
-                    if(targ==false){
+                    if (targ == false) {
                         if (week_day == 5) {
                             clocks.get(0).add(Calendar.DAY_OF_MONTH, 3);
                         } else {
                             clocks.get(0).add(Calendar.DAY_OF_MONTH, 1);
                         }
-                        clocks.get(0).add(Calendar.MINUTE, minRandom);
-                        clocks.get(0).add(Calendar.SECOND, secRandom);
+                        if (dataContext.getSetting(Setting.KEYS.is_clock_random, true).getBoolean()) {
+                            clocks.get(0).add(Calendar.MINUTE, minRandom);
+                            clocks.get(0).add(Calendar.SECOND, secRandom);
+                        }
                         now = clocks.get(0);
                     }
                 }
@@ -368,19 +376,23 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                  * 2、其他时间设置为当天的下一个时间点。
                  */
                 boolean targ = false;
-                for(DateTime clock : clocks){
-                    if(now.getTimeInMillis()<clock.getTimeInMillis()){
-                        clock.add(Calendar.MINUTE, minRandom);
-                        clock.add(Calendar.SECOND, secRandom);
+                for (DateTime clock : clocks) {
+                    if (now.getTimeInMillis() < clock.getTimeInMillis()) {
+                        if (dataContext.getSetting(Setting.KEYS.is_clock_random, true).getBoolean()) {
+                            clock.add(Calendar.MINUTE, minRandom);
+                            clock.add(Calendar.SECOND, secRandom);
+                        }
                         now = clock;
                         targ = true;
                         break;
                     }
                 }
-                if(targ==false){
+                if (targ == false) {
                     clocks.get(0).add(Calendar.DAY_OF_MONTH, 1);
-                    clocks.get(0).add(Calendar.MINUTE, minRandom);
-                    clocks.get(0).add(Calendar.SECOND, secRandom);
+                    if (dataContext.getSetting(Setting.KEYS.is_clock_random, true).getBoolean()) {
+                        clocks.get(0).add(Calendar.MINUTE, minRandom);
+                        clocks.get(0).add(Calendar.SECOND, secRandom);
+                    }
                     now = clocks.get(0);
                 }
             }

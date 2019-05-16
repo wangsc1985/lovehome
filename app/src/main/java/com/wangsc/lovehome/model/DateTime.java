@@ -37,6 +37,7 @@ public class DateTime extends GregorianCalendar {
         this.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
         this.set(Calendar.HOUR_OF_DAY, hour);
         this.set(Calendar.MINUTE, minute);
+        this.set(Calendar.SECOND, 0);
         this.set(Calendar.MILLISECOND, 0);
     }
 

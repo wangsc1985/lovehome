@@ -87,6 +87,7 @@ public class MyListenerService extends AccessibilityService {
 //                    // 打卡界面
 //                } else
                 if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SlideActivity")) {
+                    // 登录注册界面
                     clickViewByEqualsText("登录");
                 } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.user.login.SignUpWithPwdActivity")) {
                     // 登录界面

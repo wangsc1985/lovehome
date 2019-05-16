@@ -6,30 +6,45 @@
     android:orientation="vertical"
     tools:context=".fragment.ClockFragment">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:text="考勤时间会在分钟上加5以内随机数。"
-        android:textAlignment="center"
-        android:textColor="#C50825" />
-
-    <View
-        android:id="@+id/sdf"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#DAD5D5"></View>
-
     <ListView
         android:id="@+id/listView_clock"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp">
 
     </ListView>
+
+    <View
+        android:id="@+id/sdf"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#DAD5D5"
+        android:visibility="visible"></View>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="horizontal"
+        android:paddingRight="10dp">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="是否模拟随机时间"
+            android:textAlignment="center"
+            android:textColor="#C50825" />
+
+        <Switch
+            android:id="@+id/switch_isClockRandom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 </LinearLayout>

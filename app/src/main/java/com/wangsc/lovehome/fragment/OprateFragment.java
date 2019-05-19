@@ -292,12 +292,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
     public static void setAlarmRimet(Context context) {
         try {
-            /**
-             * 7-8.30 上班
-             * 12-13 下班
-             * 13-14 上班
-             * 18-19.30 下班
-             */
+
             DateTime now = new DateTime();
 
             DataContext dataContext = new DataContext(context);

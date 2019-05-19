@@ -15,7 +15,7 @@ public class MyRececiver extends BroadcastReceiver {
         try {
 
             DataContext dataContext = new DataContext(context);
-            if (dataContext.getSetting(Setting.KEYS.listener, false).getBoolean()) {
+            if (dataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean()) {
                 OprateFragment.setAlarmRimet(context);
             }
 //                Intent i = new Intent(context, MainActivity.class);

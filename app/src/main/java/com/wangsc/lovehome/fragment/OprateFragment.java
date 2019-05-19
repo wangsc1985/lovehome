@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,7 +53,7 @@ import static android.content.Context.ALARM_SERVICE;
  */
 public class OprateFragment extends Fragment implements IfragmentInit {
 
-    private Button btnTrim, btnAccount;
+    private Button btnRimet, btnAccount;
     private ImageView btnHelper, btnIsWeek;
     public static final int ALARM_RIMET = 406;
 
@@ -92,17 +93,17 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             btnHelper.setImageResource(R.mipmap.helper_close);
             shanDong(btnHelper);
         }
-        if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean()) {
+        if (mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean()) {
 
             DateTime target = new DateTime(mDataContext.getSetting(Setting.KEYS.rimet_alarm_time).getLong());
             if (target.getDay() != new DateTime().getDay()) {
-                btnTrim.setText(target.toLongDateTimeString());
+                btnRimet.setText(target.toLongDateTimeString());
             } else {
-                btnTrim.setText(target.toTimeString());
+                btnRimet.setText(target.toTimeString());
             }
-            animatorSuofang(btnTrim);
+            animatorSuofang(btnRimet);
         } else {
-            btnTrim.setText("开始");
+            btnRimet.setText("开始");
         }
     }
 
@@ -147,7 +148,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             @Override
             public void onClick(View v) {
                 boolean isWeek = mDataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean();
-                final boolean listener = mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean();
+                final boolean listener = mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean();
                 isWeek = !isWeek;
                 final boolean finalIsWeek = isWeek;
                 String msg = "更改为七天工作制？";
@@ -198,40 +199,40 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             }
         });
 
-        btnTrim = view.findViewById(R.id.btn_trim);
-        if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean()) {
+        btnRimet = view.findViewById(R.id.btn_rimet);
+        if (mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean()) {
 
             DateTime target = new DateTime(mDataContext.getSetting(Setting.KEYS.rimet_alarm_time).getLong());
             if (target.getDay() != new DateTime().getDay()) {
-                btnTrim.setText(target.toLongDateTimeString());
+                btnRimet.setText(target.toLongDateTimeString());
             } else {
-                btnTrim.setText(target.toTimeString());
+                btnRimet.setText(target.toTimeString());
             }
-            animatorSuofang(btnTrim);
+            animatorSuofang(btnRimet);
         } else {
-            btnTrim.setText("开始");
+            btnRimet.setText("开始");
         }
-        btnTrim.setOnClickListener(new View.OnClickListener() {
+        btnRimet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean() == false) {
+                if (mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean() == false) {
                     setAlarmRimet(getContext());
-                    animatorSuofang(btnTrim);
+                    animatorSuofang(btnRimet);
                 } else {
                     stopAlarm(getContext());
-                    btnTrim.setText("开始");
+                    btnRimet.setText("开始");
                     stopAnimatorSuofang();
                 }
             }
         });
-//        btnTrim.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//                startAlarm(getContext(), System.currentTimeMillis() + 5000);
-//                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
-//                return true;
-//            }
-//        });
+        btnRimet.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                startAlarm(getContext(), System.currentTimeMillis() + 30000);
+                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
+                return true;
+            }
+        });
 
         return view;
     }
@@ -312,9 +313,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
             List<DateTime> clocks = new ArrayList<>();
             for (RimetClock cl : clockList) {
-                DateTime dateTime = new DateTime(cl.getHour(), cl.getMinite());
-                Log.e("wangsc",dateTime.toTimeString());
-                clocks.add(dateTime);
+                clocks.add(new DateTime(cl.getHour(), cl.getMinite()));
             }
 
             Random ran = new Random();
@@ -397,107 +396,8 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                 }
             }
 
-
-            //region Description
-//            DateTime clock1 = new DateTime(8, 0);
-//            DateTime clock2 = new DateTime(12, 5);
-//            DateTime clock3 = new DateTime(13, 10);
-//            DateTime clock4 = new DateTime(18, 5);
-//
-////            int minRandom = (int) (Math.minRandom() * 10);
-//            Random ran = new Random();
-//            int minRandom = ran.nextInt(5);
-//            int secRandom = ran.nextInt(59);
-//
-//            int week_day = now.get(Calendar.DAY_OF_WEEK) - 1;
-//
-//            if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
-//                /**
-//                 * 如果上班时间 - 5天制。
-//                 *
-//                 * 周末直接跳转到周一的早上八点。
-//                 *
-//                 * 其他日期
-//                 * 1、如果是当天最后一个闹钟，跳转到下一天的八点。
-//                 * 2、其他时间设置为当天的下一个时间点。
-//                 */
-//
-//                if (week_day == 6 || week_day == 0) {
-//                    addDay(dataContext, clock1, week_day);
-//                    clock1.add(Calendar.MINUTE, minRandom);
-//                    clock1.add(Calendar.SECOND, secRandom);
-//                    now = clock1;
-//                } else {
-//                    if (now.getTimeInMillis() < clock1.getTimeInMillis()) {
-//                        clock1.add(Calendar.MINUTE, minRandom);
-//                        clock1.add(Calendar.SECOND, secRandom);
-//                        now = clock1;
-//                    } else if (now.getTimeInMillis() < clock2.getTimeInMillis()) {
-//                        clock2.add(Calendar.MINUTE, minRandom);
-//                        clock2.add(Calendar.SECOND, secRandom);
-//                        now = clock2;
-//                    } else if (now.getTimeInMillis() < clock3.getTimeInMillis()) {
-//                        clock3.add(Calendar.MINUTE, minRandom);
-//                        clock3.add(Calendar.SECOND, secRandom);
-//                        now = clock3;
-//                    } else if (now.getTimeInMillis() < clock4.getTimeInMillis()) {
-//                        clock4.add(Calendar.MINUTE, minRandom);
-//                        clock4.add(Calendar.SECOND, secRandom);
-//                        now = clock4;
-//                    } else {
-//                        if (week_day == 5) {
-//                            clock1.add(Calendar.DAY_OF_MONTH, 3);
-//                        } else {
-//                            clock1.add(Calendar.DAY_OF_MONTH, 1);
-//                        }
-//                        clock1.add(Calendar.MINUTE, minRandom);
-//                        clock1.add(Calendar.SECOND, secRandom);
-//                        now = clock1;
-//                    }
-//                }
-//            } else {
-//                /**
-//                 * 如果上班时间 - 7天制
-//                 *
-//                 * 1、当天最后一个闹钟，跳转到下一天的八点。
-//                 * 2、其他时间设置为当天的下一个时间点。
-//                 */
-//                if (now.getTimeInMillis() < clock1.getTimeInMillis()) {
-//                    clock1.add(Calendar.MINUTE, minRandom);
-//                    clock1.add(Calendar.SECOND, secRandom);
-//                    now = clock1;
-//                } else if (now.getTimeInMillis() < clock2.getTimeInMillis()) {
-//                    clock2.add(Calendar.MINUTE, minRandom);
-//                    clock2.add(Calendar.SECOND, secRandom);
-//                    now = clock2;
-//                } else if (now.getTimeInMillis() < clock3.getTimeInMillis()) {
-//                    clock3.add(Calendar.MINUTE, minRandom);
-//                    clock3.add(Calendar.SECOND, secRandom);
-//                    now = clock3;
-//                } else if (now.getTimeInMillis() < clock4.getTimeInMillis()) {
-//                    clock4.add(Calendar.MINUTE, minRandom);
-//                    clock4.add(Calendar.SECOND, secRandom);
-//                    now = clock4;
-//                } else {
-//                    clock1.add(Calendar.DAY_OF_MONTH, 1);
-//                    clock1.add(Calendar.MINUTE, minRandom);
-//                    clock1.add(Calendar.SECOND, secRandom);
-//                    now = clock1;
-//                }
-//            }
-            //endregion
-
-
-            /**
-             * 一    二   三   四   五   六   日
-             * 1     2    3    4    5   6   0
-             * 2     3    4    5    6   7   1
-             *
-             * 周五+3 周六+2 其余+1
-             */
             Log.e("wangsc", "xxxxxxx: " + now.toLongDateTimeString());
             startAlarm(context, now.getTimeInMillis());
-            dataContext.editSetting(Setting.KEYS.rimet_alarm_time, now.getTimeInMillis());
 
 
             if (now.getDay() != new DateTime().getDay()) {
@@ -514,7 +414,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(MessageEvent messageEvent) {
         try {
-            btnTrim.setText(messageEvent.getMessage());
+            btnRimet.setText(messageEvent.getMessage());
         } catch (Exception e) {
             _Utils.printException(getContext(), e);
         }
@@ -559,8 +459,8 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             }
 
             DataContext dataContext = new DataContext(context);
-            dataContext.addSetting(Setting.KEYS.alarmTimeInMillis, alarmTimeInMillis);
-            dataContext.editSetting(Setting.KEYS.listener, true);
+            dataContext.addSetting(Setting.KEYS.rimet_alarm_time, alarmTimeInMillis);
+            dataContext.editSetting(Setting.KEYS.is_rimet_clock_running, true);
 //            dataContext.addRunLog("闹钟时间", new DateTime(alarmTimeInMillis).toLongDateTimeString());
         } catch (Exception e) {
             _Utils.printException(context, e);
@@ -578,8 +478,8 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
 
             DataContext dataContext = new DataContext(context);
-            dataContext.deleteSetting(Setting.KEYS.alarmTimeInMillis);
-            dataContext.editSetting(Setting.KEYS.listener, false);
+            dataContext.deleteSetting(Setting.KEYS.rimet_alarm_time);
+            dataContext.editSetting(Setting.KEYS.is_rimet_clock_running, false);
         } catch (Exception e) {
             _Utils.printException(context, e);
         }

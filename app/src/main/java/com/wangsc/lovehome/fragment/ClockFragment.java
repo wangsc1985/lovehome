@@ -5,9 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -128,7 +126,7 @@ public class ClockFragment extends Fragment implements IfragmentInit {
                 mDataContext.updateRimetClock(rimetClock);
                 rimetClockList = mDataContext.getRimetClocks();
                 adapter.notifyDataSetChanged();
-                if (mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean() == true) {
+                if (mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean() == true) {
                     OprateFragment.setAlarmRimet(getContext());
                 }
 

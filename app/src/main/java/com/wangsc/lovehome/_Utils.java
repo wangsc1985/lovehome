@@ -118,14 +118,20 @@ public class _Utils {
     public static void openAppFromOuter(final Context context, String packageName){
         wakeScreen(context);
 
-        Intent LaunchIntent1 = context.getPackageManager().getLaunchIntentForPackage("com.wangsc.lovehome");
-        context.startActivity(LaunchIntent1);
-
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+//        Intent LaunchIntent1 = context.getPackageManager().getLaunchIntentForPackage("com.wangsc.lovehome");
+//        context.startActivity(LaunchIntent1);
+//
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         Intent LaunchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         context.startActivity(LaunchIntent);
@@ -134,7 +140,7 @@ public class _Utils {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(40000);
+                    Thread.sleep(120000);
                     Intent intent = new Intent(Intent.ACTION_MAIN);
                     intent.addCategory(Intent.CATEGORY_HOME);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -152,7 +158,7 @@ public class _Utils {
     public static void wakeScreen(Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "bright");
-        mWakeLock.acquire(120000);
+        mWakeLock.acquire(150000);
     }
 
     public static void closeScreen(Context context) {

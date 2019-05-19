@@ -47,7 +47,8 @@ public class Setting {
         return Double.parseDouble(value);
     }
 
-    public enum KEYS{listener, is_rimet_week, phone, password, alarmTimeInMillis, rimet_alarm_time, is_clock_random;
+    public enum KEYS{
+        is_rimet_clock_running, is_rimet_week, phone, password, rimet_alarm_time, is_clock_random;
 
     }
 

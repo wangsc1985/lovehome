@@ -69,7 +69,7 @@ public class MyListenerService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         try {
             mDataContext = new DataContext(getApplicationContext());
-            if (!mDataContext.getSetting(Setting.KEYS.listener, false).getBoolean())
+            if (!mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean())
                 return;
 
             eventType = event.getEventType();

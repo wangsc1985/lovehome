@@ -1,4 +1,4 @@
-package com.wangsc.lovehome;
+package com.wangsc.lovehome.model;
 
 import android.content.Context;
 import android.database.SQLException;

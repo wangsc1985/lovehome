@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.wangsc.lovehome.DataContext;
-import com.wangsc.lovehome._Utils;
+import com.wangsc.lovehome.model.DataContext;
+import com.wangsc.lovehome.helper._Utils;
 import com.wangsc.lovehome.fragment.OprateFragment;
 import com.wangsc.lovehome.model.DateTime;
 
@@ -24,7 +24,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 //            _Utils.openAppFromInner(context,"com.alibaba.android.rimet");
 //            _Utils.openRimetFromOuter(context);
             mDataContext = new DataContext(context);
-            mDataContext.addRunLog("考勤打卡",new DateTime().toLongDateTimeString());
+            mDataContext.addRunLog("唤醒手机",new DateTime().toLongDateTimeString());
             OprateFragment.setAlarmRimet(context);
         } catch (Exception e) {
             _Utils.printException(context, e);

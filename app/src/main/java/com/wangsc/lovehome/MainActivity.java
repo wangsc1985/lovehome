@@ -1,11 +1,9 @@
 package com.wangsc.lovehome;
 
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
@@ -23,8 +21,8 @@ import android.widget.Toast;
 import com.wangsc.lovehome.fragment.ClockFragment;
 import com.wangsc.lovehome.fragment.OprateFragment;
 import com.wangsc.lovehome.fragment.RunlogsFragment;
-
-import org.greenrobot.eventbus.EventBus;
+import com.wangsc.lovehome.helper._Utils;
+import com.wangsc.lovehome.interf.IfragmentInit;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -138,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_BACK:
-                    Log.e("wangsc","click back");
                     _Utils.clickHomeButton(this);
                 default:
                     break;

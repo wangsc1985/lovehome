@@ -1,6 +1,7 @@
 package com.wangsc.lovehome.service;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -12,15 +13,17 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.wangsc.lovehome.DataContext;
-import com.wangsc.lovehome._Utils;
+import com.wangsc.lovehome.model.DataContext;
+import com.wangsc.lovehome.helper._Utils;
 import com.wangsc.lovehome.model.DateTime;
+import com.wangsc.lovehome.model.RimetClock;
 import com.wangsc.lovehome.model.Setting;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
 
 public class MyListenerService extends AccessibilityService {
@@ -52,11 +55,12 @@ public class MyListenerService extends AccessibilityService {
         super.onServiceConnected();
 //
 //        AccessibilityServiceInfo info = new AccessibilityServiceInfo();
-////        info.packageNames = apps.toArray(new String[apps.size()]); //监听过滤的包名
-////        for(String packageName : apps){
-////            Log.e("wangsc","包名："+packageName);
-////        }
-//        info.packageNames = new String[]{"com.alibaba.android.rimet"}; //监听过滤的包名
+//        List<String> apps = _Utils.getAppInfos(getApplication());
+//        info.packageNames = apps.toArray(new String[apps.size()]); //监听过滤的包名
+//        for(String packageName : apps){
+//            Log.e("wangsc","包名："+packageName);
+//        }
+////        info.packageNames = new String[]{"com.alibaba.android.rimet"}; //监听过滤的包名
 //        info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK; //监听哪些行为
 //        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN; //反馈
 //        info.notificationTimeout = 100; //通知的时间
@@ -68,76 +72,91 @@ public class MyListenerService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         try {
+            //
             mDataContext = new DataContext(getApplicationContext());
             if (!mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean())
                 return;
 
+            String packageName = event.getPackageName().toString();
+            String className = event.getClassName().toString();
             eventType = event.getEventType();
 
-            if (eventType == TYPE_WINDOW_STATE_CHANGED) {
-                String packageName = event.getPackageName().toString();
-                String className = event.getClassName().toString();
-                Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
-//                printNodeInfo();
-//                if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SplashActivity")) {
-//                    // 主界面
-//                    clickViewListByText("工作");
-//                    Thread.sleep(5000);
-//                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.lightapp.runtime.activity.CommonWebViewActivity")) {
-//                    // 打卡界面
-//                } else
-                if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.rimet.biz.SlideActivity")) {
-                    // 登录注册界面
-                    clickViewByEqualsText("登录");
-                } else if (packageName.equals("com.alibaba.android.rimet") && className.equals("com.alibaba.android.user.login.SignUpWithPwdActivity")) {
-                    // 登录界面
-//                    Calendar calendar = Calendar.getInstance();
-//                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
-//                    if (hour == 8 || hour == 12 || hour == 13 || hour == 18) {
-                    LoginPwd();
-//                    }
+
+            List<RimetClock> rimetClockList = mDataContext.getRimetClocks();
+            RimetClock rimetClock = null;
+            for (RimetClock rc : rimetClockList) {
+                DateTime clockTime = new DateTime(rc.getHour(), rc.getMinite());
+                if (System.currentTimeMillis() >= clockTime.getTimeInMillis() && (System.currentTimeMillis() - clockTime.getTimeInMillis()) < 10 * 60 * 1000) {
+                    rimetClock = rc;
+                    break;
                 }
             }
 
-///*            else if (eventType == TYPE_WINDOW_CONTENT_CHANGED) {
-////                printNodeInfo();
-////               if(clickViewListByDescription("我知道了"))
-////                   return;
-//                if (clickViewByEqualsDescription("暂不升级"))
-//                    return;
-//                if (clickViewByEqualsDescription("确定"))
-//                    return;
-//                if (clickViewByEqualsDescription("考勤打卡"))
-//                    return;
-//
-//                Calendar calendar = Calendar.getInstance();
-//                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-//                switch (hour) {
-//                    case 8:
-//                        rimetClockOn(hour);
-//                        break;
-//                    case 12:
-//                        rimetClockOff(hour);
-//                        break;
-//                    case 13:
-//                        rimetClockOn(hour);
-//                        break;
-//                    case 18:
-//                        rimetClockOff(hour);
-//                        break;
-//
-//
-//                    // TODO: 2019/4/15 测试代码，用完删除。
-//                    case 22:
-//                        rimetClockOn(hour);
-//                        break;
-//                    case 23:
-//                        rimetClockOff(hour);
-//                        break;
-//
-//                }
-//            }*/
 
+            if (rimetClock != null) {
+                Log.e("wangsc", "clock: " + rimetClock.getHour() + " - " + rimetClock.getSummery());
+                //
+                if (!_Utils.rimetAppStartClockId.equals(rimetClock.getId())) {
+                    mDataContext.addRunLog("钉钉已被启动", new DateTime().toLongDateTimeString());
+                    _Utils.rimetAppStartClockId = rimetClock.getId();
+                }
+
+                //
+                switch (eventType) {
+                    case TYPE_WINDOW_STATE_CHANGED:
+                        Log.e("wangsc", "TYPE_WINDOW_STATE_CHANGED");
+                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+                        printNodeInfo();
+
+                        //
+                        if (clickViewListByText("工作")) {
+                            Thread.sleep(3000);
+                        }
+
+                        // 定位对话框退出
+                        if (clickViewListByText("我知道了"))
+                            return;
+
+                        //
+                        switch (className) {
+//                        case "com.alibaba.android.rimet.biz.SplashActivity":
+//                            // 主界面
+//                            break;
+//                        case "com.alibaba.lightapp.runtime.activity.CommonWebViewActivity":
+//                            // 打卡界面
+//                            break;
+                            case "com.alibaba.android.rimet.biz.SlideActivity":
+                                // 登录注册界面
+                                clickViewByEqualsText("登录");
+                                break;
+                            case "com.alibaba.android.user.login.SignUpWithPwdActivity":
+                                // 登录界面
+                                LoginPwd();
+                                break;
+                        }
+
+                        break;
+                    case TYPE_WINDOW_CONTENT_CHANGED:
+                        Log.e("wangsc", "TYPE_WINDOW_CONTENT_CHANGED");
+                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+                        printNodeInfo();
+//               if(clickViewListByDescription("我知道了"))
+//                   return;
+                        if (clickViewByEqualsDescription("暂不升级"))
+                            return;
+                        if (clickViewByEqualsDescription("确定"))
+                            return;
+                        if (clickViewByEqualsDescription("考勤打卡"))
+                            return;
+
+                        /**
+                         * 点击上下班打卡按钮
+                         */
+                        clickCheckButton(rimetClock);
+
+                        break;
+                }
+            }
         } catch (Exception e) {
             _Utils.printException(getBaseContext(), e);
         }
@@ -210,7 +229,6 @@ public class MyListenerService extends AccessibilityService {
 
             }
 
-
             // 点击登录
             clickView(nodeLogin);
         }
@@ -221,7 +239,6 @@ public class MyListenerService extends AccessibilityService {
 
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         getAllNodesToList(nodeInfo);
-
 
         int nodeIndex = 0;
         AccessibilityNodeInfo nodePassword = null, nodeLogin = null;
@@ -235,7 +252,6 @@ public class MyListenerService extends AccessibilityService {
                         nodePassword = node;
                         break;
                 }
-
             } else if (node.getClassName().toString().equals("android.widget.Button")) {
                 nodeLogin = node;
             }
@@ -261,35 +277,21 @@ public class MyListenerService extends AccessibilityService {
 
             }
 
-
             // 点击登录
             clickView(nodeLogin);
         }
     }
 
-    private void rimetClockOff(int hour) {
-        if (_Utils.rimetClockOnHour != hour) {
-            if (clickViewListByDescription("下班打卡")) {
-                _Utils.rimetClockOnHour = hour;
-                mDataContext.addRunLog("下班打卡", new DateTime().toLongDateTimeString());
+    private void clickCheckButton(RimetClock rc) {
+        if (!_Utils.rimetPrevClockId.equals(rc.getId())) {
+            if (clickViewListByDescription(rc.getSummery() + "打卡")) {
+                _Utils.rimetPrevClockId = rc.getId();
+                mDataContext.addRunLog("常规打卡", new DateTime().toLongDateTimeString());
             }
         }
-        if (_Utils.rimetIKnowHour != hour) {
+        if (!_Utils.rimetIKClockId.equals(rc.getId())) {
             clickViewListByDescription("我知道了");
-            _Utils.rimetIKnowHour = hour;
-        }
-    }
-
-    private void rimetClockOn(int hour) {
-        if (_Utils.rimetClockOnHour != hour) {
-            if (clickViewListByDescription("上班打卡")) {
-                _Utils.rimetClockOnHour = hour;
-                mDataContext.addRunLog("上班打卡", new DateTime().toLongDateTimeString());
-            }
-        }
-        if (_Utils.rimetIKnowHour != hour) {
-            clickViewListByDescription("我知道了");
-            _Utils.rimetIKnowHour = hour;
+            _Utils.rimetIKClockId = rc.getId();
         }
     }
 
@@ -345,7 +347,6 @@ public class MyListenerService extends AccessibilityService {
         }
         return false;
     }
-
 
 
     private boolean clickViewByEqualText1(String viewText) {

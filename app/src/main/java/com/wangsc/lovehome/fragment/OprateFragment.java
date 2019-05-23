@@ -29,13 +29,13 @@ import com.wangsc.lovehome.model.BackupTask;
 import com.wangsc.lovehome.model.RimetClock;
 import com.wangsc.lovehome.model.MessageEvent;
 import com.wangsc.lovehome.recevier.AlarmReceiver;
-import com.wangsc.lovehome.DataContext;
+import com.wangsc.lovehome.model.DataContext;
 import com.wangsc.lovehome.model.DateTime;
-import com.wangsc.lovehome.IfragmentInit;
+import com.wangsc.lovehome.interf.IfragmentInit;
 import com.wangsc.lovehome.service.MusicService;
 import com.wangsc.lovehome.R;
 import com.wangsc.lovehome.model.Setting;
-import com.wangsc.lovehome._Utils;
+import com.wangsc.lovehome.helper._Utils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -165,30 +165,12 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                         }
                         if (listener)
                             setAlarmRimet(getContext());
-                        mDataContext.editSetting(Setting.KEYS.is_rimet_week, finalIsWeek);
+                        mDataContext.updateSetting(Setting.KEYS.is_rimet_week, finalIsWeek);
 
                     }
                 }).setNegativeButton("否", null).show();
             }
         });
-//
-//        toggleButton = view.findViewById(R.id.toggleButton);
-//        toggleButton.setChecked(mDataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean());
-//        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                mDataContext.editSetting(Setting.KEYS.is_rimet_week, isChecked);
-//            }
-//        });
-//
-//        aSwitchWeekRimet = view.findViewById(R.id.switch_week_rimet);
-//        aSwitchWeekRimet.setChecked(mDataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean());
-//        aSwitchWeekRimet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                mDataContext.editSetting(Setting.KEYS.is_rimet_week, isChecked);
-//            }
-//        });
 
         btnHelper = view.findViewById(R.id.btn_helper);
         btnHelper.setOnClickListener(new View.OnClickListener() {
@@ -228,8 +210,8 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         btnRimet.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startAlarm(getContext(), System.currentTimeMillis() + 30000);
-                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
+//                startAlarm(getContext(), System.currentTimeMillis() + 300000);
+//                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -268,8 +250,8 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, "确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-//                mDataContext.editSetting(Setting.KEYS.phone, editTextPhone.getText().toString());
-                mDataContext.editSetting(Setting.KEYS.password, editTextPassword.getText().toString());
+//                mDataContext.updateSetting(Setting.KEYS.phone, editTextPhone.getText().toString());
+                mDataContext.updateSetting(Setting.KEYS.password, editTextPassword.getText().toString());
             }
         });
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
@@ -293,7 +275,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
     public static void setAlarmRimet(Context context) {
         try {
 
-            DateTime now = new DateTime();
+            DateTime target = new DateTime();
 
             DataContext dataContext = new DataContext(context);
             List<RimetClock> clockList = dataContext.getRimetClocks();
@@ -315,7 +297,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             int minRandom = ran.nextInt(5);
             int secRandom = ran.nextInt(59);
 
-            int week_day = now.get(Calendar.DAY_OF_WEEK) - 1;
+            int week_day = target.get(Calendar.DAY_OF_WEEK) - 1;
 
 
             if (dataContext.getSetting(Setting.KEYS.is_rimet_week, false).getBoolean() == false) {
@@ -335,16 +317,16 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                         clocks.get(0).add(Calendar.MINUTE, minRandom);
                         clocks.get(0).add(Calendar.SECOND, secRandom);
                     }
-                    now = clocks.get(0);
+                    target = clocks.get(0);
                 } else {
                     boolean targ = false;
                     for (DateTime clock : clocks) {
-                        if (now.getTimeInMillis() < clock.getTimeInMillis()) {
+                        if (target.getTimeInMillis() < clock.getTimeInMillis()) {
                             if (dataContext.getSetting(Setting.KEYS.is_clock_random, true).getBoolean()) {
                                 clock.add(Calendar.MINUTE, minRandom);
                                 clock.add(Calendar.SECOND, secRandom);
                             }
-                            now = clock;
+                            target = clock;
                             targ = true;
                             break;
                         }
@@ -359,7 +341,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                             clocks.get(0).add(Calendar.MINUTE, minRandom);
                             clocks.get(0).add(Calendar.SECOND, secRandom);
                         }
-                        now = clocks.get(0);
+                        target = clocks.get(0);
                     }
                 }
             } else {
@@ -371,12 +353,12 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                  */
                 boolean targ = false;
                 for (DateTime clock : clocks) {
-                    if (now.getTimeInMillis() < clock.getTimeInMillis()) {
+                    if (target.getTimeInMillis() < clock.getTimeInMillis()) {
                         if (dataContext.getSetting(Setting.KEYS.is_clock_random, true).getBoolean()) {
                             clock.add(Calendar.MINUTE, minRandom);
                             clock.add(Calendar.SECOND, secRandom);
                         }
-                        now = clock;
+                        target = clock;
                         targ = true;
                         break;
                     }
@@ -387,19 +369,13 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                         clocks.get(0).add(Calendar.MINUTE, minRandom);
                         clocks.get(0).add(Calendar.SECOND, secRandom);
                     }
-                    now = clocks.get(0);
+                    target = clocks.get(0);
                 }
             }
 
-            Log.e("wangsc", "xxxxxxx: " + now.toLongDateTimeString());
-            startAlarm(context, now.getTimeInMillis());
+            Log.e("wangsc", "xxxxxxx: " + target.toLongDateTimeString());
+            startAlarm(context, target.getTimeInMillis());
 
-
-            if (now.getDay() != new DateTime().getDay()) {
-                EventBus.getDefault().post(new MessageEvent(now.toLongDateTimeString()));
-            } else {
-                EventBus.getDefault().post(new MessageEvent(now.toTimeString()));
-            }
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -436,7 +412,6 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         try {
 
             context.startService(new Intent(context, MusicService.class));
-//            _Utils.acquireWakeLock(context);
 
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("tag", ALARM_RIMET);
@@ -454,9 +429,15 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             }
 
             DataContext dataContext = new DataContext(context);
-            dataContext.addSetting(Setting.KEYS.rimet_alarm_time, alarmTimeInMillis);
-            dataContext.editSetting(Setting.KEYS.is_rimet_clock_running, true);
-//            dataContext.addRunLog("闹钟时间", new DateTime(alarmTimeInMillis).toLongDateTimeString());
+            dataContext.updateSetting(Setting.KEYS.rimet_alarm_time, alarmTimeInMillis);
+            dataContext.updateSetting(Setting.KEYS.is_rimet_clock_running, true);
+
+            DateTime target = new DateTime(alarmTimeInMillis);
+            if (target.getDay() != new DateTime().getDay()) {
+                EventBus.getDefault().post(new MessageEvent(target.toLongDateTimeString()));
+            } else {
+                EventBus.getDefault().post(new MessageEvent(target.toTimeString()));
+            }
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -465,7 +446,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
     public static void stopAlarm(Context context) {
         try {
             context.stopService(new Intent(context, MusicService.class));// 停止服务
-//            _Utils.releaseWakeLock(context);
+
             Intent intent = new Intent(context, AlarmReceiver.class);
             PendingIntent pi = PendingIntent.getBroadcast(context, ALARM_RIMET, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
@@ -474,7 +455,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
             DataContext dataContext = new DataContext(context);
             dataContext.deleteSetting(Setting.KEYS.rimet_alarm_time);
-            dataContext.editSetting(Setting.KEYS.is_rimet_clock_running, false);
+            dataContext.updateSetting(Setting.KEYS.is_rimet_clock_running, false);
         } catch (Exception e) {
             _Utils.printException(context, e);
         }

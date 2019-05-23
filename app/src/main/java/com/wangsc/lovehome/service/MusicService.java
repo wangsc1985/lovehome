@@ -4,14 +4,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.wangsc.lovehome.R;
-import com.wangsc.lovehome._Utils;
-
-import java.io.File;
+import com.wangsc.lovehome.helper._Utils;
 
 public class MusicService extends Service {
 

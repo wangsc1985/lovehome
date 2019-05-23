@@ -2,7 +2,6 @@ package com.wangsc.lovehome.fragment;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -11,15 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.wangsc.lovehome.DataContext;
-import com.wangsc.lovehome.IfragmentInit;
+import com.wangsc.lovehome.model.DataContext;
+import com.wangsc.lovehome.interf.IfragmentInit;
 import com.wangsc.lovehome.R;
 import com.wangsc.lovehome.model.RunLog;
-import com.wangsc.lovehome._Utils;
+import com.wangsc.lovehome.helper._Utils;
 
 import java.util.List;
 

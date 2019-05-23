@@ -1,4 +1,4 @@
-package com.wangsc.lovehome;
+package com.wangsc.lovehome.model;
 
 import android.text.TextUtils;
 

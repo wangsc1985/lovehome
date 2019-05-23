@@ -1,8 +1,6 @@
 package com.wangsc.lovehome.model;
 
 
-import com.wangsc.lovehome._String;
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;

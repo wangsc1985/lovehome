@@ -19,10 +19,10 @@ import android.widget.NumberPicker;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.wangsc.lovehome.DataContext;
-import com.wangsc.lovehome.IfragmentInit;
+import com.wangsc.lovehome.model.DataContext;
+import com.wangsc.lovehome.interf.IfragmentInit;
 import com.wangsc.lovehome.R;
-import com.wangsc.lovehome._Utils;
+import com.wangsc.lovehome.helper._Utils;
 import com.wangsc.lovehome.model.RimetClock;
 import com.wangsc.lovehome.model.Setting;
 
@@ -75,7 +75,7 @@ public class ClockFragment extends Fragment implements IfragmentInit {
         aSwitchIsClockRandom.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mDataContext.editSetting(Setting.KEYS.is_clock_random, isChecked);
+                mDataContext.updateSetting(Setting.KEYS.is_clock_random, isChecked);
             }
         });
 
@@ -114,33 +114,39 @@ public class ClockFragment extends Fragment implements IfragmentInit {
         number_min.setValue(rimetClock.getMinite());
         number_min.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS); // 禁止对话框打开后数字选择框被选中
 
-        final EditText editTextSummary = view.findViewById(R.id.editText_summary);
-        editTextSummary.setText(rimetClock.getSummery());
+//        final EditText editTextSummary = view.findViewById(R.id.editText_summary);
+//        editTextSummary.setText(rimetClock.getSummery());
 
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "确定", new DialogInterface.OnClickListener() {
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "下班", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface dialog, int which) {
                 rimetClock.setHour(number_hour.getValue());
                 rimetClock.setMinite(number_min.getValue());
-                rimetClock.setSummery(editTextSummary.getText().toString());
+                rimetClock.setSummery("下班");
                 mDataContext.updateRimetClock(rimetClock);
                 rimetClockList = mDataContext.getRimetClocks();
                 adapter.notifyDataSetChanged();
                 if (mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean() == true) {
                     OprateFragment.setAlarmRimet(getContext());
                 }
-
             }
         });
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "上班", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                rimetClock.setHour(number_hour.getValue());
+                rimetClock.setMinite(number_min.getValue());
+                rimetClock.setSummery("上班");
+                mDataContext.updateRimetClock(rimetClock);
+                rimetClockList = mDataContext.getRimetClocks();
+                adapter.notifyDataSetChanged();
+                if (mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean() == true) {
+                    OprateFragment.setAlarmRimet(getContext());
+                }
             }
         });
         dialog.show();
     }
-
 
     private ListView listViewRimetClock;
     private List<RimetClock> rimetClockList;

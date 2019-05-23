@@ -1,18 +1,18 @@
-package com.wangsc.lovehome;
+package com.wangsc.lovehome.model;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.wangsc.lovehome.helper._Utils;
+import com.wangsc.lovehome.model.DatabaseHelper;
 import com.wangsc.lovehome.model.DateTime;
 import com.wangsc.lovehome.model.RimetClock;
 import com.wangsc.lovehome.model.RunLog;
 import com.wangsc.lovehome.model.Setting;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -352,7 +352,7 @@ public class DataContext {
      * @param key
      * @param value
      */
-    public void editSetting(Object key, Object value) {
+    public void updateSetting(Object key, Object value) {
         //获取数据库对象
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         //使用update方法更新表中的数据

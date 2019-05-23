@@ -1,6 +1,7 @@
-package com.wangsc.lovehome;
+package com.wangsc.lovehome.helper;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,20 +16,24 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.wangsc.lovehome.model.DateTime;
+import com.wangsc.lovehome.model.DataContext;
 import com.wangsc.lovehome.model.RunLog;
 import com.wangsc.lovehome.service.MyListenerService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class _Utils {
 
-    public static int rimetClockOnHour =0;
-    public static int rimetIKnowHour=0;
+    public static UUID rimetPrevClockId = UUID.randomUUID();
+    public static UUID rimetIKClockId = UUID.randomUUID();
+    public static UUID rimetAppStartClockId = UUID.randomUUID();
     private static final String TAG = "wangsc";
-    private static TextToSpeech textToSpeech=null;//创建自带语音对象
-    public static void speaker(final Context context, final String msg){
+    private static TextToSpeech textToSpeech = null;//创建自带语音对象
+
+    public static void speaker(final Context context, final String msg) {
         textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -42,14 +47,39 @@ public class _Utils {
 //                    if(result1 == TextToSpeech.LANG_MISSING_DATA || result1 == TextToSpeech.LANG_NOT_SUPPORTED){
 //                        Toast.makeText(context, "US数据丢失或不支持", Toast.LENGTH_SHORT).show();
 //                    }
-                    if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                         Toast.makeText(context, "SIMPLIFIED_CHINESE数据丢失或不支持", Toast.LENGTH_SHORT).show();
-                    }else{
-                        textToSpeech.speak(msg,TextToSpeech.QUEUE_FLUSH, null);//输入中文，若不支持的设备则不会读出来
+                    } else {
+                        textToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null);//输入中文，若不支持的设备则不会读出来
                     }
                 }
             }
         });
+    }
+
+    /**
+     * 获取所有程序的包名信息
+     *
+     * @param application
+     * @return
+     */
+    public static List<String> getAppInfos(Application application) {
+        PackageManager pm = application.getPackageManager();
+        List<PackageInfo> packgeInfos = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
+        List<String> appInfos = new ArrayList<String>();
+        /* 获取应用程序的名称，不是包名，而是清单文件中的labelname
+            String str_name = packageInfo.applicationInfo.loadLabel(pm).toString();
+            appInfo.setAppName(str_name);
+         */
+        for (PackageInfo packgeInfo : packgeInfos) {
+//            String appName = packgeInfo.applicationInfo.loadLabel(pm).toString();
+            String packageName = packgeInfo.packageName;
+//            Drawable drawable = packgeInfo.applicationInfo.loadIcon(pm);
+//            AppInfo appInfo = new AppInfo(appName, packageName, drawable);
+//            appInfos.add(appInfo);
+            appInfos.add(packageName);
+        }
+        return appInfos;
     }
     /**
      * 从app内部启动外部程序
@@ -100,9 +130,10 @@ public class _Utils {
 
     /**
      * 模拟点击HOME按钮
+     *
      * @param context
      */
-    public static void clickHomeButton(Context context){
+    public static void clickHomeButton(Context context) {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -115,11 +146,11 @@ public class _Utils {
      * @param context
      * @param packageName
      */
-    public static void openAppFromOuter(final Context context, String packageName){
+    public static void openAppFromOuter(final Context context, String packageName) {
         wakeScreen(context);
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -140,7 +171,7 @@ public class _Utils {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(120000);
+                    Thread.sleep(2 * 60 * 1000);
                     Intent intent = new Intent(Intent.ACTION_MAIN);
                     intent.addCategory(Intent.CATEGORY_HOME);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -154,11 +185,12 @@ public class _Utils {
 
 
     public static PowerManager.WakeLock mWakeLock;
+
     @SuppressLint("InvalidWakeLockTag")
     public static void wakeScreen(Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "bright");
-        mWakeLock.acquire(150000);
+        mWakeLock.acquire(2 * 60 * 1000 + 10 * 1000);
     }
 
     public static void closeScreen(Context context) {
@@ -238,6 +270,7 @@ public class _Utils {
         }
         return false;
     }
+
     private static PowerManager.WakeLock wakeLock = null;
 
     /**
@@ -264,6 +297,7 @@ public class _Utils {
             printException(context, e);
         }
     }
+
     /**
      * 释放设备电源锁
      */

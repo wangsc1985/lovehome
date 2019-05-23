@@ -27,7 +27,7 @@ import java.util.UUID;
 
 public class _Utils {
 
-    public static UUID rimetPrevClockId = UUID.randomUUID();
+    public static UUID rimetCheckClockId = UUID.randomUUID();
     public static UUID rimetIKClockId = UUID.randomUUID();
     public static UUID rimetAppStartClockId = UUID.randomUUID();
     private static final String TAG = "wangsc";

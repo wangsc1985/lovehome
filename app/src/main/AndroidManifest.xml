@@ -20,10 +20,12 @@
         android:supportsRtl="true"
         android:persistent="true"
         android:theme="@style/AppTheme">
+
         <receiver
             android:name=".recevier.MyRececiver">
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
 

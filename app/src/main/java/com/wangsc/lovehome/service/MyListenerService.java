@@ -1,7 +1,6 @@
 package com.wangsc.lovehome.service;
 
 import android.accessibilityservice.AccessibilityService;
-import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -98,33 +97,34 @@ public class MyListenerService extends AccessibilityService {
                 //
                 if (!_Utils.rimetAppStartClockId.equals(rimetClock.getId())) {
                     mDataContext.addRunLog("钉钉已被启动", new DateTime().toLongDateTimeString());
+                    Log.e("wangsc","钉钉已被启动："+ new DateTime().toLongDateTimeString());
                     _Utils.rimetAppStartClockId = rimetClock.getId();
                 }
 
                 //
                 switch (eventType) {
                     case TYPE_WINDOW_STATE_CHANGED:
-                        Log.e("wangsc", "TYPE_WINDOW_STATE_CHANGED");
-                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
-                        printNodeInfo();
+//                        Log.e("wangsc", "TYPE_WINDOW_STATE_CHANGED");
+//                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+//                        printNodeInfo();
 
                         //
                         if (clickViewListByText("工作")) {
                             Thread.sleep(3000);
                         }
 
-                        // 定位对话框退出
+                        // “努力定位中”对话框退出
                         if (clickViewListByText("我知道了"))
                             return;
 
                         //
                         switch (className) {
-//                        case "com.alibaba.android.rimet.biz.SplashActivity":
-//                            // 主界面
-//                            break;
-//                        case "com.alibaba.lightapp.runtime.activity.CommonWebViewActivity":
-//                            // 打卡界面
-//                            break;
+//                            case "com.alibaba.android.rimet.biz.SplashActivity":
+//                                // 主界面
+//                                break;
+//                            case "com.alibaba.lightapp.runtime.activity.CommonWebViewActivity":
+//                                // 打卡界面
+//                                break;
                             case "com.alibaba.android.rimet.biz.SlideActivity":
                                 // 登录注册界面
                                 clickViewByEqualsText("登录");
@@ -137,12 +137,11 @@ public class MyListenerService extends AccessibilityService {
 
                         break;
                     case TYPE_WINDOW_CONTENT_CHANGED:
-                        Log.e("wangsc", "TYPE_WINDOW_CONTENT_CHANGED");
-                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
-                        printNodeInfo();
-//               if(clickViewListByDescription("我知道了"))
-//                   return;
-                        if (clickViewByEqualsDescription("暂不升级"))
+//                        Log.e("wangsc", "TYPE_WINDOW_CONTENT_CHANGED");
+//                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+//                        printNodeInfo();
+
+                        if (clickViewByEqualsText("暂不更新"))
                             return;
                         if (clickViewByEqualsDescription("确定"))
                             return;
@@ -283,15 +282,17 @@ public class MyListenerService extends AccessibilityService {
     }
 
     private void clickCheckButton(RimetClock rc) {
-        if (!_Utils.rimetPrevClockId.equals(rc.getId())) {
-            if (clickViewListByDescription(rc.getSummery() + "打卡")) {
-                _Utils.rimetPrevClockId = rc.getId();
+        if (!_Utils.rimetCheckClockId.equals(rc.getId())) {
+            String text = rc.getSummery() + "打卡";
+            Log.e("wangsc", "button text : " + text);
+            clickViewListByDescription(text);
+
+
+            if (clickViewListByDescription("我知道了")) {
                 mDataContext.addRunLog("常规打卡", new DateTime().toLongDateTimeString());
+                _Utils.rimetCheckClockId = rc.getId();
+
             }
-        }
-        if (!_Utils.rimetIKClockId.equals(rc.getId())) {
-            clickViewListByDescription("我知道了");
-            _Utils.rimetIKClockId = rc.getId();
         }
     }
 

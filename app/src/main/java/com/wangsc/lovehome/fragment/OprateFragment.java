@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import static android.content.Context.ALARM_SERVICE;
 
@@ -212,6 +213,10 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             public boolean onLongClick(View v) {
 //                startAlarm(getContext(), System.currentTimeMillis() + 300000);
 //                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
+                _Utils.rimetAppStartClockId= UUID.randomUUID();
+                _Utils.rimetIKClockId = UUID.randomUUID();
+                _Utils.rimetCheckClockId = UUID.randomUUID();
+                Snackbar.make(btnHelper, "OK", Snackbar.LENGTH_SHORT).show();
                 return true;
             }
         });

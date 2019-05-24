@@ -70,6 +70,7 @@ public class MyListenerService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+//        Log.e("wangsc","-------public void onAccessibilityEvent(AccessibilityEvent event)-------");
         try {
             //
             mDataContext = new DataContext(getApplicationContext());
@@ -93,13 +94,6 @@ public class MyListenerService extends AccessibilityService {
 
 
             if (rimetClock != null) {
-                Log.e("wangsc", "clock: " + rimetClock.getHour() + " - " + rimetClock.getSummery());
-                //
-                if (!_Utils.rimetAppStartClockId.equals(rimetClock.getId())) {
-                    mDataContext.addRunLog("钉钉已被启动", new DateTime().toLongDateTimeString());
-                    Log.e("wangsc","钉钉已被启动："+ new DateTime().toLongDateTimeString());
-                    _Utils.rimetAppStartClockId = rimetClock.getId();
-                }
 
                 //
                 switch (eventType) {
@@ -107,6 +101,13 @@ public class MyListenerService extends AccessibilityService {
 //                        Log.e("wangsc", "TYPE_WINDOW_STATE_CHANGED");
 //                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
 //                        printNodeInfo();
+
+                        //
+                        if (!_Utils.rimetAppStartClockId.equals(rimetClock.getId())) {
+                            mDataContext.addRunLog("钉钉已被启动", new DateTime().toLongDateTimeString());
+                            Log.e("wangsc","钉钉已被启动："+ new DateTime().toLongDateTimeString());
+                            _Utils.rimetAppStartClockId = rimetClock.getId();
+                        }
 
                         //
                         if (clickViewListByText("工作")) {
@@ -284,7 +285,6 @@ public class MyListenerService extends AccessibilityService {
     private void clickCheckButton(RimetClock rc) {
         if (!_Utils.rimetCheckClockId.equals(rc.getId())) {
             String text = rc.getSummery() + "打卡";
-            Log.e("wangsc", "button text : " + text);
             clickViewListByDescription(text);
 
 

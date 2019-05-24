@@ -11,37 +11,47 @@ import com.wangsc.lovehome.fragment.OprateFragment;
 import com.wangsc.lovehome.model.DateTime;
 import com.wangsc.lovehome.model.Setting;
 
-public class MyRececiver extends BroadcastReceiver {
+/**
+ * Created by 阿弥陀佛 on 2016/10/23.
+ */
+public class ActionReceiver extends BroadcastReceiver {
+
+    public static final String ACTION_ALARM = "com.wangsc.lovehome.ALARM";
+    // reviver里面用来确定唤醒屏幕的是闹钟，否则不会将唤醒记录到数据库。
+    public static boolean isAlarmWakeup = false;
+
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
+
         try {
-
             DataContext dataContext = new DataContext(context);
-            switch (intent.getAction()){
 
+            switch (intent.getAction()) {
                 case Intent.ACTION_BOOT_COMPLETED:
                     /**
-                     * 重启完成
+                     * 开机完成
                      */
                     if (dataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean()) {
-                        dataContext.addRunLog("重启后重新启动闹钟",new DateTime().toLongDateTimeString());
+                        dataContext.addRunLog("开机启动闹钟",new DateTime().toLongDateTimeString());
                         OprateFragment.setAlarmRimet(context);
                     }
-//                Intent i = new Intent(context, MainActivity.class);
-//                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                context.startActivity(i);
                     break;
                 case Intent.ACTION_USER_PRESENT:
                     /**
                      * 解锁
                      */
-                    Log.e("wangsc","唤醒手机："+new DateTime().toLongDateTimeString());
-                    if(AlarmReceiver.isAlarmWakeup) {
+                    if(ActionReceiver.isAlarmWakeup) {
                         dataContext.addRunLog("唤醒手机", new DateTime().toLongDateTimeString());
-                        AlarmReceiver.isAlarmWakeup=false;
+                        ActionReceiver.isAlarmWakeup=false;
                     }
                     break;
+                case ACTION_ALARM:
+                    isAlarmWakeup = true;
+                    _Utils.openAppFromOuter(context, "com.alibaba.android.rimet");
+                    OprateFragment.setAlarmRimet(context);
+                    break;
             }
+
         } catch (Exception e) {
             _Utils.printException(context, e);
         }

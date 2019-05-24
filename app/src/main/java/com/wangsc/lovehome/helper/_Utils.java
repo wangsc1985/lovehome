@@ -81,6 +81,7 @@ public class _Utils {
         }
         return appInfos;
     }
+
     /**
      * 从app内部启动外部程序
      *
@@ -146,27 +147,26 @@ public class _Utils {
      * @param context
      * @param packageName
      */
-    public static void openAppFromOuter(final Context context, String packageName) {
+    public static void openAppFromOuter(final Context context, final String packageName) {
+
+        // 唤醒手机
         wakeScreen(context);
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        // 启动钉钉
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                    Intent LaunchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+                    context.startActivity(LaunchIntent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
-//        Intent LaunchIntent1 = context.getPackageManager().getLaunchIntentForPackage("com.wangsc.lovehome");
-//        context.startActivity(LaunchIntent1);
-//
-//        try {
-//            Thread.sleep(3000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-        Intent LaunchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-        context.startActivity(LaunchIntent);
-
+        // 2分钟后模拟点击HOME键
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -176,7 +176,7 @@ public class _Utils {
                     intent.addCategory(Intent.CATEGORY_HOME);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

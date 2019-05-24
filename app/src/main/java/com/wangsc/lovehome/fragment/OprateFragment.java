@@ -28,7 +28,7 @@ import android.widget.ToggleButton;
 import com.wangsc.lovehome.model.BackupTask;
 import com.wangsc.lovehome.model.RimetClock;
 import com.wangsc.lovehome.model.MessageEvent;
-import com.wangsc.lovehome.recevier.AlarmReceiver;
+import com.wangsc.lovehome.recevier.ActionReceiver;
 import com.wangsc.lovehome.model.DataContext;
 import com.wangsc.lovehome.model.DateTime;
 import com.wangsc.lovehome.interf.IfragmentInit;
@@ -378,7 +378,6 @@ public class OprateFragment extends Fragment implements IfragmentInit {
                 }
             }
 
-            Log.e("wangsc", "xxxxxxx: " + target.toLongDateTimeString());
             startAlarm(context, target.getTimeInMillis());
 
         } catch (Exception e) {
@@ -418,8 +417,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 
             context.startService(new Intent(context, MusicService.class));
 
-            Intent intent = new Intent(context, AlarmReceiver.class);
-            intent.putExtra("tag", ALARM_RIMET);
+            Intent intent = new Intent(ActionReceiver.ACTION_ALARM);
             // 念佛结束闹钟
             PendingIntent pi = PendingIntent.getBroadcast(context, ALARM_RIMET, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
@@ -452,7 +450,7 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         try {
             context.stopService(new Intent(context, MusicService.class));// 停止服务
 
-            Intent intent = new Intent(context, AlarmReceiver.class);
+            Intent intent = new Intent(ActionReceiver.ACTION_ALARM);
             PendingIntent pi = PendingIntent.getBroadcast(context, ALARM_RIMET, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
             am.cancel(pi);

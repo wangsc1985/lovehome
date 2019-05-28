@@ -40,9 +40,10 @@ public class ActionReceiver extends BroadcastReceiver {
                     /**
                      * 解锁
                      */
-                    if(ActionReceiver.isAlarmWakeup) {
+                    if(isAlarmWakeup) {
+                        Log.e("wangsc","唤醒手机："+ new DateTime().toLongDateTimeString());
                         dataContext.addRunLog("唤醒手机", new DateTime().toLongDateTimeString());
-                        ActionReceiver.isAlarmWakeup=false;
+                        isAlarmWakeup=false;
                     }
                     break;
                 case ACTION_ALARM:

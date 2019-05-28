@@ -1,6 +1,7 @@
 package com.wangsc.lovehome.service;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -70,7 +71,6 @@ public class MyListenerService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-//        Log.e("wangsc","-------public void onAccessibilityEvent(AccessibilityEvent event)-------");
         try {
             //
             mDataContext = new DataContext(getApplicationContext());
@@ -98,20 +98,15 @@ public class MyListenerService extends AccessibilityService {
                 //
                 switch (eventType) {
                     case TYPE_WINDOW_STATE_CHANGED:
-//                        Log.e("wangsc", "TYPE_WINDOW_STATE_CHANGED");
+//                        Log.e("wangsc", "【TYPE_WINDOW_STATE_CHANGED】");
 //                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
 //                        printNodeInfo();
 
                         //
                         if (!_Utils.rimetAppStartClockId.equals(rimetClock.getId())) {
-                            mDataContext.addRunLog("钉钉已被启动", new DateTime().toLongDateTimeString());
-                            Log.e("wangsc","钉钉已被启动："+ new DateTime().toLongDateTimeString());
+                            mDataContext.addRunLog("钉钉启动", new DateTime().toLongDateTimeString());
+                            Log.e("wangsc", "钉钉启动：" + new DateTime().toLongDateTimeString());
                             _Utils.rimetAppStartClockId = rimetClock.getId();
-                        }
-
-                        //
-                        if (clickViewListByText("工作")) {
-                            Thread.sleep(3000);
                         }
 
                         // “努力定位中”对话框退出
@@ -123,7 +118,12 @@ public class MyListenerService extends AccessibilityService {
 //                            case "com.alibaba.android.rimet.biz.SplashActivity":
 //                                // 主界面
 //                                break;
-//                            case "com.alibaba.lightapp.runtime.activity.CommonWebViewActivity":
+                            case "com.alibaba.lightapp.runtime.activity.CommonWebViewActivity":
+                                if (!_Utils.rimetCheckViewClockId.equals(rimetClock.getId())) {
+                                    mDataContext.addRunLog("打卡界面", new DateTime().toLongDateTimeString());
+                                    Log.e("wangsc", "打卡界面：" + new DateTime().toLongDateTimeString());
+                                    _Utils.rimetCheckViewClockId = rimetClock.getId();
+                                }
 //                                // 打卡界面
 //                                break;
                             case "com.alibaba.android.rimet.biz.SlideActivity":
@@ -134,12 +134,18 @@ public class MyListenerService extends AccessibilityService {
                                 // 登录界面
                                 LoginPwd();
                                 break;
+                            case "android.widget.FrameLayout":
+                                //
+                                if (clickViewListByText("工作")) {
+                                    Thread.sleep(5000);
+                                }
+                                break;
                         }
 
                         break;
                     case TYPE_WINDOW_CONTENT_CHANGED:
 //                        Log.e("wangsc", "TYPE_WINDOW_CONTENT_CHANGED");
-//                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+//                        Log.e("wangsc", "package: " + packageName + "  className: " + className);
 //                        printNodeInfo();
 
                         if (clickViewByEqualsText("暂不更新"))
@@ -153,7 +159,6 @@ public class MyListenerService extends AccessibilityService {
                          * 点击上下班打卡按钮
                          */
                         clickCheckButton(rimetClock);
-
                         break;
                 }
             }
@@ -683,14 +688,14 @@ public class MyListenerService extends AccessibilityService {
     public void getAllNodesPrintInfo(AccessibilityNodeInfo info, StringBuilder texts) {
         if (info != null) {
             if (info.getChildCount() == 0) {
-                texts.append("【");
+                texts.append("{");
                 if (info.getText() != null) {
                     texts.append(info.getText().toString());
                 }
                 if (info.getContentDescription() != null) {
                     texts.append("*" + info.getContentDescription().toString());
                 }
-                texts.append("】");
+                texts.append("}");
             } else {
                 for (int i = 0; i < info.getChildCount(); i++) {
                     if (info.getChild(i) != null) {

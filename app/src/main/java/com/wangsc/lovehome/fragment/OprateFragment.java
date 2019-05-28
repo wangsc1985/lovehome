@@ -86,16 +86,24 @@ public class OprateFragment extends Fragment implements IfragmentInit {
     public void onResume() {
         Log.e("wangsc", "OprateFragment.onResume()");
         super.onResume();
-
+        boolean clockIsRunning = mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean();
+        String msg = "";
         if (_Utils.isAccessibilitySettingsOn(getContext())) {
             btnHelper.setImageResource(R.mipmap.helper_open);
             btnHelper.clearAnimation();
         } else {
             btnHelper.setImageResource(R.mipmap.helper_close);
             shanDong(btnHelper);
+            if (clockIsRunning) {
+                msg += "辅助功能未开启";
+//                _Utils.speaker(getContext(), "辅助功能未开启");
+            }
         }
-        if (mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean()) {
-
+        if (clockIsRunning) {
+            if (!_Utils.isDevelopmentOpen(getContext())) {
+                msg += "  开机有锁屏";
+//                _Utils.speaker(getContext(), "开机有锁屏");
+            }
             DateTime target = new DateTime(mDataContext.getSetting(Setting.KEYS.rimet_alarm_time).getLong());
             if (target.getDay() != new DateTime().getDay()) {
                 btnRimet.setText(target.toLongDateTimeString());
@@ -106,6 +114,9 @@ public class OprateFragment extends Fragment implements IfragmentInit {
         } else {
             btnRimet.setText("开始");
         }
+
+        if (!msg.isEmpty())
+            _Utils.speaker(getContext(), msg);
     }
 
     @Override
@@ -199,6 +210,14 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             @Override
             public void onClick(View v) {
                 if (mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean() == false) {
+                    if (!_Utils.isAccessibilitySettingsOn(getContext())) {
+                        _Utils.speaker(getContext(), "辅助功能未开启");
+                        return;
+                    }
+                    if (!_Utils.isDevelopmentOpen(getContext())) {
+                        _Utils.speaker(getContext(), "开机有锁屏");
+                        return;
+                    }
                     setAlarmRimet(getContext());
                     animatorSuofang(btnRimet);
                 } else {
@@ -213,9 +232,10 @@ public class OprateFragment extends Fragment implements IfragmentInit {
             public boolean onLongClick(View v) {
 //                startAlarm(getContext(), System.currentTimeMillis() + 300000);
 //                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
-                _Utils.rimetAppStartClockId= UUID.randomUUID();
+                _Utils.rimetAppStartClockId = UUID.randomUUID();
                 _Utils.rimetIKClockId = UUID.randomUUID();
                 _Utils.rimetCheckClockId = UUID.randomUUID();
+                _Utils.rimetCheckViewClockId = UUID.randomUUID();
                 Snackbar.make(btnHelper, "OK", Snackbar.LENGTH_SHORT).show();
                 return true;
             }

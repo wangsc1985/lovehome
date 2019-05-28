@@ -1,6 +1,7 @@
 package com.wangsc.lovehome.helper;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,6 +31,7 @@ public class _Utils {
     public static UUID rimetCheckClockId = UUID.randomUUID();
     public static UUID rimetIKClockId = UUID.randomUUID();
     public static UUID rimetAppStartClockId = UUID.randomUUID();
+    public static UUID rimetCheckViewClockId = UUID.randomUUID();
     private static final String TAG = "wangsc";
     private static TextToSpeech textToSpeech = null;//创建自带语音对象
 
@@ -39,7 +41,7 @@ public class _Utils {
             public void onInit(int status) {
                 if (status == TextToSpeech.SUCCESS) {
                     textToSpeech.setPitch(1.0f);//方法用来控制音调
-                    textToSpeech.setSpeechRate(0.7f);//用来控制语速
+                    textToSpeech.setSpeechRate(1.0f);//用来控制语速
 
                     //判断是否支持下面两种语言
 //                    int result1 = textToSpeech.setLanguage(Locale.US);
@@ -47,8 +49,10 @@ public class _Utils {
 //                    if(result1 == TextToSpeech.LANG_MISSING_DATA || result1 == TextToSpeech.LANG_NOT_SUPPORTED){
 //                        Toast.makeText(context, "US数据丢失或不支持", Toast.LENGTH_SHORT).show();
 //                    }
-                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Toast.makeText(context, "SIMPLIFIED_CHINESE数据丢失或不支持", Toast.LENGTH_SHORT).show();
+                    if (result == TextToSpeech.LANG_MISSING_DATA) {
+                        Toast.makeText(context, "CHINA语音数据丢失", Toast.LENGTH_SHORT).show();
+                    } else if (result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Toast.makeText(context, "不支持CHINA语音", Toast.LENGTH_SHORT).show();
                     } else {
                         textToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null);//输入中文，若不支持的设备则不会读出来
                     }
@@ -141,6 +145,11 @@ public class _Utils {
         context.startActivity(intent);
     }
 
+    public static boolean isDevelopmentOpen(Context context) {
+        return (Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.DEVELOPMENT_SETTINGS_ENABLED, 0) > 0);
+    }
+
+
     /**
      * 从app外部启动外部程序
      *
@@ -149,6 +158,7 @@ public class _Utils {
      */
     public static void openAppFromOuter(final Context context, final String packageName) {
 
+        final ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         // 唤醒手机
         wakeScreen(context);
 

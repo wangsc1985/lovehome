@@ -72,6 +72,7 @@ public class MyListenerService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         try {
+//            log("onAccessibilityEvent");
             //
             mDataContext = new DataContext(getApplicationContext());
             if (!mDataContext.getSetting(Setting.KEYS.is_rimet_clock_running, false).getBoolean())
@@ -81,12 +82,14 @@ public class MyListenerService extends AccessibilityService {
             String className = event.getClassName().toString();
             eventType = event.getEventType();
 
+//            log( "+++++package: " + packageName + "+++++className: " + className);
 
             List<RimetClock> rimetClockList = mDataContext.getRimetClocks();
             RimetClock rimetClock = null;
+            DateTime today = DateTime.getToday();
             for (RimetClock rc : rimetClockList) {
                 DateTime clockTime = new DateTime(rc.getHour(), rc.getMinite());
-                if (System.currentTimeMillis() >= clockTime.getTimeInMillis() && (System.currentTimeMillis() - clockTime.getTimeInMillis()) < 10 * 60 * 1000) {
+                if (System.currentTimeMillis()>clockTime.getTimeInMillis()&&Math.abs(System.currentTimeMillis() - clockTime.getTimeInMillis()) < 10 * 60000) {
                     rimetClock = rc;
                     break;
                 }
@@ -98,15 +101,16 @@ public class MyListenerService extends AccessibilityService {
                 //
                 switch (eventType) {
                     case TYPE_WINDOW_STATE_CHANGED:
-//                        Log.e("wangsc", "【TYPE_WINDOW_STATE_CHANGED】");
-//                        Log.e("wangsc", "-------------------package: " + packageName + "  ---------------------className: " + className);
+                        log("【TYPE_WINDOW_STATE_CHANGED】");
+                        log("-------------------package: " + packageName + "  ---------------------className: " + className);
 //                        printNodeInfo();
 
                         //
-                        if (!_Utils.rimetAppStartClockId.equals(rimetClock.getId())) {
+                        if (_Utils.rimetAppStartDay != today.getDay() && (!_Utils.rimetAppStartClockId.equals(rimetClock.getId()))) {
                             mDataContext.addRunLog("钉钉启动", new DateTime().toLongDateTimeString());
                             Log.e("wangsc", "钉钉启动：" + new DateTime().toLongDateTimeString());
                             _Utils.rimetAppStartClockId = rimetClock.getId();
+                            _Utils.rimetAppStartDay = today.getDay();
                         }
 
                         // “努力定位中”对话框退出
@@ -119,10 +123,11 @@ public class MyListenerService extends AccessibilityService {
 //                                // 主界面
 //                                break;
                             case "com.alibaba.lightapp.runtime.activity.CommonWebViewActivity":
-                                if (!_Utils.rimetCheckViewClockId.equals(rimetClock.getId())) {
+                                if (_Utils.rimetCheckViewDay != today.getDay() && !_Utils.rimetCheckViewClockId.equals(rimetClock.getId())) {
                                     mDataContext.addRunLog("打卡界面", new DateTime().toLongDateTimeString());
                                     Log.e("wangsc", "打卡界面：" + new DateTime().toLongDateTimeString());
                                     _Utils.rimetCheckViewClockId = rimetClock.getId();
+                                    _Utils.rimetCheckViewDay = today.getDay();
                                 }
 //                                // 打卡界面
 //                                break;
@@ -144,8 +149,8 @@ public class MyListenerService extends AccessibilityService {
 
                         break;
                     case TYPE_WINDOW_CONTENT_CHANGED:
-//                        Log.e("wangsc", "TYPE_WINDOW_CONTENT_CHANGED");
-//                        Log.e("wangsc", "package: " + packageName + "  className: " + className);
+                        log("TYPE_WINDOW_CONTENT_CHANGED");
+                        log("package: " + packageName + "  className: " + className);
 //                        printNodeInfo();
 
                         if (clickViewByEqualsText("暂不更新"))
@@ -167,6 +172,9 @@ public class MyListenerService extends AccessibilityService {
         }
     }
 
+    private void log(String log) {
+        Log.e("wangsc", log);
+    }
 
     private void Login() {
         String phone = mDataContext.getSetting(Setting.KEYS.phone, "").getString();
@@ -240,6 +248,7 @@ public class MyListenerService extends AccessibilityService {
     }
 
     private void LoginPwd() {
+        printNodeInfo();
         String password = mDataContext.getSetting(Setting.KEYS.password, "").getString();
 
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
@@ -248,18 +257,29 @@ public class MyListenerService extends AccessibilityService {
         int nodeIndex = 0;
         AccessibilityNodeInfo nodePassword = null, nodeLogin = null;
         for (AccessibilityNodeInfo node : allNodesInActiveWindow) {
-            if (node.getClassName().toString().equals("android.widget.EditText")) {
-                switch (nodeIndex) {
-                    case 0:
-                        nodeIndex++;
-                        break;
-                    case 1:
-                        nodePassword = node;
-                        break;
-                }
-            } else if (node.getClassName().toString().equals("android.widget.Button")) {
+            if(node.getText()==null)
+                continue;
+            if (node.getText().equals("请输入密码")) {
+                nodePassword = node;
+            }else if(node.getText().equals("登录")){
                 nodeLogin = node;
             }
+
+//            if (node.getClassName().toString().equals("android.widget.EditText")) {
+//                log("find edit text box......");
+////                switch (nodeIndex) {
+////                    case 0:
+////                        nodeIndex++;
+////                        break;
+////                    case 1:
+//                        if (node.getText().equals("请输入密码")) {
+//                            log("passwrod noe is find");
+//                            nodePassword = node;
+//                        }
+//                        break;
+//                }
+//            } else if (node.getClassName().toString().equals("android.widget.Button")) {
+//            }
         }
         if (nodePassword != null && nodeLogin != null && !password.isEmpty()) {
 
@@ -279,7 +299,7 @@ public class MyListenerService extends AccessibilityService {
                 nodePassword.performAction(AccessibilityNodeInfo.ACTION_PASTE);
                 Log.e("wangsc", nodePassword.getText().toString());
             } catch (Exception e) {
-
+                log(e.getMessage());
             }
 
             // 点击登录
@@ -288,7 +308,7 @@ public class MyListenerService extends AccessibilityService {
     }
 
     private void clickCheckButton(RimetClock rc) {
-        if (!_Utils.rimetCheckClockId.equals(rc.getId())) {
+        if (_Utils.rimetCheckDay != DateTime.getToday().getDay() && !_Utils.rimetCheckClockId.equals(rc.getId())) {
             String text = rc.getSummery() + "打卡";
             clickViewListByDescription(text);
 
@@ -296,6 +316,7 @@ public class MyListenerService extends AccessibilityService {
             if (clickViewListByDescription("我知道了")) {
                 mDataContext.addRunLog("常规打卡", new DateTime().toLongDateTimeString());
                 _Utils.rimetCheckClockId = rc.getId();
+                _Utils.rimetCheckDay = DateTime.getToday().getDay();
 
             }
         }

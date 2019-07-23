@@ -29,10 +29,12 @@ import java.util.UUID;
 public class _Utils {
 
     public static UUID rimetCheckClockId = UUID.randomUUID();
-    public static UUID rimetIKClockId = UUID.randomUUID();
     public static UUID rimetAppStartClockId = UUID.randomUUID();
     public static UUID rimetCheckViewClockId = UUID.randomUUID();
     private static final String TAG = "wangsc";
+    public static int rimetCheckDay = 100;
+    public static int rimetAppStartDay = 100;
+    public static int rimetCheckViewDay =100;
     private static TextToSpeech textToSpeech = null;//创建自带语音对象
 
     public static void speaker(final Context context, final String msg) {

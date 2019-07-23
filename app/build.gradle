@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.wangsc.lovehome"
-        minSdkVersion 19
+        minSdkVersion 18
         targetSdkVersion 28
         versionCode 6
         versionName '1.6.8'
@@ -17,6 +17,17 @@ android {
         }
     }
     productFlavors {
+    }
+    /**
+     * 调试时使用自动签名，手动添加。
+     */
+    signingConfigs {
+        release {
+            storeFile file('wangsc.jks')
+            storePassword 'wangsc351489'
+            keyAlias 'key'
+            keyPassword 'wangsc351489'
+        }
     }
 }
 

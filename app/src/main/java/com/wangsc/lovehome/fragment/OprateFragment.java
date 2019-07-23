@@ -233,9 +233,11 @@ public class OprateFragment extends Fragment implements IfragmentInit {
 //                startAlarm(getContext(), System.currentTimeMillis() + 300000);
 //                Snackbar.make(btnHelper, "执行成功", Snackbar.LENGTH_SHORT).show();
                 _Utils.rimetAppStartClockId = UUID.randomUUID();
-                _Utils.rimetIKClockId = UUID.randomUUID();
                 _Utils.rimetCheckClockId = UUID.randomUUID();
                 _Utils.rimetCheckViewClockId = UUID.randomUUID();
+                _Utils.rimetCheckDay = 100;
+                _Utils.rimetAppStartDay = 100;
+                _Utils.rimetCheckViewDay =100;
                 Snackbar.make(btnHelper, "OK", Snackbar.LENGTH_SHORT).show();
                 return true;
             }
